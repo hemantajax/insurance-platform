@@ -50,7 +50,16 @@
   ],
   "references": [
     {
+      "path": "../../libs/shared"
+    },
+    {
+      "path": "../../libs/ui/layout"
+    },
+    {
       "path": "../../libs/design-system"
+    },
+    {
+      "path": "../../libs/ui/data-grid"
     }
   ]
 }

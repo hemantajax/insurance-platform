@@ -74,6 +74,9 @@
   ],
   "analytics": true,
   "targetDefaults": {
+    "dev": {
+      "dependsOn": ["^build"]
+    },
     "test": {
       "dependsOn": ["^build"]
     }

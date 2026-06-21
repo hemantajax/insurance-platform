@@ -1,58 +1,76 @@
 :root {
-  /* Brand */
-  --ds-color-primary: oklch(0.45 0.14 250);
-  --ds-color-primary-foreground: oklch(0.98 0.01 250);
-  --ds-color-secondary: oklch(0.94 0.02 250);
-  --ds-color-secondary-foreground: oklch(0.28 0.04 250);
+  /* Brand — CRM purple (#5932EA) */
+  --ds-color-primary: #5932ea;
+  --ds-color-primary-foreground: #ffffff;
+  --ds-color-secondary: #f4f0ff;
+  --ds-color-secondary-foreground: #5932ea;
 
   /* Semantic */
-  --ds-color-muted: oklch(0.96 0.01 250);
-  --ds-color-muted-foreground: oklch(0.5 0.02 250);
-  --ds-color-destructive: oklch(0.55 0.22 25);
-  --ds-color-destructive-foreground: oklch(0.98 0.01 25);
-  --ds-color-success: oklch(0.55 0.15 145);
-  --ds-color-success-foreground: oklch(0.98 0.01 145);
-  --ds-color-warning: oklch(0.75 0.15 85);
-  --ds-color-warning-foreground: oklch(0.25 0.05 85);
+  --ds-color-muted: #f9f9f9;
+  --ds-color-muted-foreground: #b5b7c0;
+  --ds-color-destructive: #df0404;
+  --ds-color-destructive-foreground: #ffffff;
+  --ds-color-success: #16c098;
+  --ds-color-success-foreground: #008767;
+  --ds-color-warning: #ffc107;
+  --ds-color-warning-foreground: #292d32;
 
-  /* Surfaces */
-  --ds-color-background: oklch(0.99 0.005 250);
-  --ds-color-foreground: oklch(0.18 0.02 250);
-  --ds-color-card: oklch(1 0 0);
-  --ds-color-card-foreground: oklch(0.18 0.02 250);
-  --ds-color-border: oklch(0.9 0.01 250);
-  --ds-color-input: oklch(0.9 0.01 250);
-  --ds-color-ring: oklch(0.45 0.14 250);
-  --ds-color-accent: oklch(0.94 0.02 250);
-  --ds-color-accent-foreground: oklch(0.28 0.04 250);
-  --ds-color-popover: oklch(1 0 0);
-  --ds-color-popover-foreground: oklch(0.18 0.02 250);
+  /* Status badges — Figma CRM active/inactive pills */
+  --ds-color-status-active-bg: #16c09861;
+  --ds-color-status-active-fg: #008767;
+  --ds-color-status-inactive-bg: #ffc5c5;
+  --ds-color-status-inactive-fg: #df0404;
+
+  /* Surfaces — #FAFBFF page bg, white cards/sidebar */
+  --ds-color-background: #fafbff;
+  --ds-color-foreground: #292d32;
+  --ds-color-card: #ffffff;
+  --ds-color-card-foreground: #292d32;
+  --ds-color-border: #eeeeee;
+  --ds-color-input: #eeeeee;
+  --ds-color-ring: #5932ea;
+  --ds-color-accent: #f4f0ff;
+  --ds-color-accent-foreground: #5932ea;
+  --ds-color-popover: #ffffff;
+  --ds-color-popover-foreground: #292d32;
+
+  /* Sidebar active nav highlight — primary at 8% */
+  --ds-color-sidebar: #ffffff;
+  --ds-color-sidebar-active: #5932ea14;
 }
 
 .dark {
-  --ds-color-primary: oklch(0.65 0.14 250);
-  --ds-color-primary-foreground: oklch(0.15 0.02 250);
-  --ds-color-secondary: oklch(0.28 0.03 250);
-  --ds-color-secondary-foreground: oklch(0.95 0.01 250);
+  --ds-color-primary: #7c5cf0;
+  --ds-color-primary-foreground: #ffffff;
+  --ds-color-secondary: #2a2440;
+  --ds-color-secondary-foreground: #c4b5fd;
 
-  --ds-color-muted: oklch(0.28 0.02 250);
-  --ds-color-muted-foreground: oklch(0.7 0.02 250);
-  --ds-color-destructive: oklch(0.55 0.2 25);
-  --ds-color-destructive-foreground: oklch(0.98 0.01 25);
-  --ds-color-success: oklch(0.6 0.14 145);
-  --ds-color-success-foreground: oklch(0.15 0.02 145);
-  --ds-color-warning: oklch(0.7 0.14 85);
-  --ds-color-warning-foreground: oklch(0.15 0.04 85);
+  --ds-color-muted: #1e1e2e;
+  --ds-color-muted-foreground: #9197a7;
+  --ds-color-destructive: #f87171;
+  --ds-color-destructive-foreground: #ffffff;
+  --ds-color-success: #16c098;
+  --ds-color-success-foreground: #6ee7b7;
+  --ds-color-warning: #fbbf24;
+  --ds-color-warning-foreground: #292d32;
 
-  --ds-color-background: oklch(0.16 0.02 250);
-  --ds-color-foreground: oklch(0.95 0.01 250);
-  --ds-color-card: oklch(0.2 0.02 250);
-  --ds-color-card-foreground: oklch(0.95 0.01 250);
-  --ds-color-border: oklch(0.3 0.02 250);
-  --ds-color-input: oklch(0.3 0.02 250);
-  --ds-color-ring: oklch(0.65 0.14 250);
-  --ds-color-accent: oklch(0.28 0.03 250);
-  --ds-color-accent-foreground: oklch(0.95 0.01 250);
-  --ds-color-popover: oklch(0.2 0.02 250);
-  --ds-color-popover-foreground: oklch(0.95 0.01 250);
+  --ds-color-status-active-bg: #16c09833;
+  --ds-color-status-active-fg: #6ee7b7;
+  --ds-color-status-inactive-bg: #ffc5c533;
+  --ds-color-status-inactive-fg: #fca5a5;
+
+  --ds-color-background: #14141f;
+  --ds-color-foreground: #f0f0f5;
+  --ds-color-card: #1c1c2a;
+  --ds-color-card-foreground: #f0f0f5;
+  --ds-color-border: #2e2e3e;
+  --ds-color-input: #2e2e3e;
+  --ds-color-ring: #7c5cf0;
+  --ds-color-accent: #2a2440;
+  --ds-color-accent-foreground: #c4b5fd;
+  --ds-color-popover: #1c1c2a;
+  --ds-color-popover-foreground: #f0f0f5;
+
+  --ds-color-sidebar: #1c1c2a;
+  --ds-color-sidebar-active: #5932ea28;
 }

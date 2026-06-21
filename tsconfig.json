@@ -29,6 +29,12 @@
     },
     {
       "path": "./libs/ui/layout"
+    },
+    {
+      "path": "./apps/claims-lab-e2e"
+    },
+    {
+      "path": "./apps/claims-lab"
     }
   ]
 }

@@ -1,1 +1,1 @@
-export * from './lib/data-grid';
+export { ClaimsGrid, type ClaimsGridProps } from './lib/claims-grid';

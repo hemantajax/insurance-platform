@@ -13,5 +13,14 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     }
+  },
+  "dependencies": {
+    "@org/design-system": "*",
+    "@org/shared": "^0.0.1",
+    "lucide-react": "^0.525.0"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   }
 }

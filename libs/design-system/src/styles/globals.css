@@ -29,6 +29,12 @@
   --color-accent-foreground: var(--ds-color-accent-foreground);
   --color-popover: var(--ds-color-popover);
   --color-popover-foreground: var(--ds-color-popover-foreground);
+  --color-sidebar: var(--ds-color-sidebar);
+  --color-sidebar-active: var(--ds-color-sidebar-active);
+  --color-status-active-bg: var(--ds-color-status-active-bg);
+  --color-status-active-fg: var(--ds-color-status-active-fg);
+  --color-status-inactive-bg: var(--ds-color-status-inactive-bg);
+  --color-status-inactive-fg: var(--ds-color-status-inactive-fg);
 
   --radius-sm: var(--ds-radius-sm);
   --radius-md: var(--ds-radius-md);

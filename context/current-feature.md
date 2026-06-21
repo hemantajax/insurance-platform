@@ -1,4 +1,4 @@
-# Current Feature: Foundation Phase 0 — Design System & Tokens
+# Current Feature: Claims Grid — Phases 1–3
 
 ## Status
 
@@ -6,21 +6,21 @@ In Progress
 
 ## Goals
 
-- [x] Add design tokens under `libs/design-system/src/tokens/` (colors, typography, spacing, radius, shadows)
-- [x] Initialize shadcn/ui in `@org/design-system` (Button, Input, Dialog, Dropdown, Skeleton, Toast)
-- [x] Theme support: light and dark via CSS variables / `@theme` in global styles
-- [x] Export reusable primitives from `libs/design-system/src/index.ts`
-- [x] Wire Tailwind CSS v4 in claims-portal and import design-system styles in root layout
-- [x] Demo page renders Button and theme toggle; `pnpm nx build @org/design-system` passes
+- [x] Auth mock login + protected routes (portal lib + shared session)
+- [x] RBAC permissions + usePermission + Can
+- [x] Mock API with 50k claims, RBAC, jobs, comments
+- [x] Server-paginated virtualized claims grid
+- [x] Sort, filter, debounced search, URL sync
+- [x] Permission-gated row actions (edit, delete, assign)
+- [ ] Document workspace (next feature)
 
 ## Notes
 
-- Tailwind v4 via `@tailwindcss/postcss` + `@theme inline` in design-system globals
-- shadcn components in `libs/design-system/src/components/ui/`
-- `components.json` at repo root for future shadcn CLI adds
-- Client providers wrapped in `apps/claims-portal/src/app/providers.tsx`
-- Spec: `context/features/foundation-phase-0-spec.md`
+- `@org/auth` / `@org/claims` libs root-owned — auth/claims hooks live in `apps/claims-portal/src/lib/` until permissions fixed
+- Session + permissions core in `@org/shared/lib/auth`
+- Specs: auth-mock-login, auth-rbac, mock-api, claims-grid phases 1–3
 
 ## History
 
-<!-- Completed features — earliest to latest -->
+- Foundation Phase 0 — Design System & Tokens
+- Application Shell — Layout & Global UI
