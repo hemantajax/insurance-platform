@@ -1,14 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  FileText,
-  LayoutDashboard,
-  PanelLeftClose,
-  PanelLeftOpen,
-  Settings,
-  Users,
-} from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 
 import { useUiStore } from '@org/shared';
 import {
@@ -23,13 +16,44 @@ import { Breadcrumb, type BreadcrumbItem } from './breadcrumb';
 import { ErrorBoundary } from './error-boundary';
 import { Header } from './header';
 import {
+  CustomersIcon,
+  DashboardIcon,
+  HelpIcon,
+  IncomeIcon,
+  ProductIcon,
+  PromoteIcon,
+} from '../icons/nav-icons';
+import {
   Sidebar,
   SidebarBrand,
   SidebarNavItem,
   SidebarUserProfile,
 } from './sidebar';
 
-const TABLET_BREAKPOINT = 1024;
+const LG_BREAKPOINT = 1024;
+const LG_MEDIA_QUERY = `(min-width: ${LG_BREAKPOINT}px)`;
+
+function subscribeToLargeScreen(onStoreChange: () => void) {
+  const mediaQuery = window.matchMedia(LG_MEDIA_QUERY);
+  mediaQuery.addEventListener('change', onStoreChange);
+  return () => mediaQuery.removeEventListener('change', onStoreChange);
+}
+
+function getLargeScreenSnapshot() {
+  return window.matchMedia(LG_MEDIA_QUERY).matches;
+}
+
+function getLargeScreenServerSnapshot() {
+  return true;
+}
+
+function useIsLargeScreen(): boolean {
+  return React.useSyncExternalStore(
+    subscribeToLargeScreen,
+    getLargeScreenSnapshot,
+    getLargeScreenServerSnapshot
+  );
+}
 
 export interface PortalNavItem {
   icon: React.ReactNode;
@@ -50,10 +74,12 @@ export interface PortalShellProps {
 }
 
 const defaultNavItems: PortalNavItem[] = [
-  { icon: <LayoutDashboard />, label: 'Dashboard', href: '/dashboard' },
-  { icon: <FileText />, label: 'Claims', href: '/claims' },
-  { icon: <Users />, label: 'Customers', href: '/customers' },
-  { icon: <Settings />, label: 'Settings', href: '/settings' },
+  { icon: <DashboardIcon />, label: 'Dashboard', href: '/dashboard' },
+  { icon: <ProductIcon />, label: 'Product', href: '/product' },
+  { icon: <CustomersIcon />, label: 'Customers', href: '/customers' },
+  { icon: <IncomeIcon />, label: 'Income', href: '/income' },
+  { icon: <PromoteIcon />, label: 'Promote', href: '/promote' },
+  { icon: <HelpIcon />, label: 'Help', href: '/help' },
 ];
 
 export function PortalShell({
@@ -67,8 +93,10 @@ export function PortalShell({
   className,
 }: PortalShellProps) {
   const sidebarOpen = useUiStore((state) => state.sidebarOpen);
+  const sidebarCollapsed = useUiStore((state) => state.sidebarCollapsed);
   const toggleSidebar = useUiStore((state) => state.toggleSidebar);
   const setSidebarOpen = useUiStore((state) => state.setSidebarOpen);
+  const isLargeScreen = useIsLargeScreen();
 
   React.useEffect(() => {
     if (typeof window === 'undefined') {
@@ -76,7 +104,7 @@ export function PortalShell({
     }
 
     const closeOnMobile = () => {
-      if (window.innerWidth < TABLET_BREAKPOINT) {
+      if (window.innerWidth < LG_BREAKPOINT) {
         setSidebarOpen(false);
       }
     };
@@ -86,7 +114,32 @@ export function PortalShell({
     return () => window.removeEventListener('resize', closeOnMobile);
   }, [setSidebarOpen]);
 
-  const collapsed = !sidebarOpen;
+  const isCollapsed = isLargeScreen && sidebarCollapsed;
+
+  const handleMobileMenuClick = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
+  const handleNavNavigate = () => {
+    setSidebarOpen(false);
+  };
+
+  const collapseToggle = (
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      className="hidden h-8 w-8 shrink-0 lg:inline-flex"
+      onClick={toggleSidebar}
+      aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+    >
+      {isCollapsed ? (
+        <PanelLeftOpen className="h-5 w-5" />
+      ) : (
+        <PanelLeftClose className="h-5 w-5" />
+      )}
+    </Button>
+  );
 
   return (
     <AppShell
@@ -102,45 +155,36 @@ export function PortalShell({
             />
           ) : null}
           <Sidebar
-            collapsed={collapsed}
+            collapsed={isCollapsed}
             className={cn(
-              'z-50 transition-transform duration-200 lg:relative lg:translate-x-0',
-              sidebarOpen
-                ? 'fixed inset-y-0 left-0 translate-x-0'
-                : 'fixed inset-y-0 left-0 -translate-x-full lg:translate-x-0'
+              'z-50 max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:transition-transform max-lg:duration-200',
+              sidebarOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full',
+              'lg:relative lg:translate-x-0'
             )}
-            brand={<SidebarBrand title="ABC Insurance" version="Claims" />}
-            navigation={
-              <>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="mb-2 hidden h-9 w-9 lg:inline-flex"
-                  onClick={toggleSidebar}
-                  aria-label={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
-                >
-                  {sidebarOpen ? (
-                    <PanelLeftClose className="h-5 w-5" />
-                  ) : (
-                    <PanelLeftOpen className="h-5 w-5" />
-                  )}
-                </Button>
-                {navigation.map((item) => (
-                  <SidebarNavItem
-                    key={item.label}
-                    icon={item.icon}
-                    label={item.label}
-                    href={item.href}
-                    active={item.active}
-                  />
-                ))}
-              </>
+            brand={
+              <SidebarBrand
+                title="ABC Insurance"
+                version="Claims"
+                collapsed={isCollapsed}
+                toggle={collapseToggle}
+              />
             }
+            navigation={navigation.map((item) => (
+              <SidebarNavItem
+                key={item.label}
+                icon={item.icon}
+                label={item.label}
+                href={item.href}
+                active={item.active}
+                collapsed={isCollapsed}
+                onNavigate={handleNavNavigate}
+              />
+            ))}
             footer={
               <SidebarUserProfile
                 name="Claims Processor"
                 role="Placeholder user"
+                collapsed={isCollapsed}
               />
             }
           />
@@ -150,7 +194,7 @@ export function PortalShell({
       {showHeader ? (
         <Header
           title="ABC Insurance"
-          onMenuClick={toggleSidebar}
+          onMenuClick={handleMobileMenuClick}
           profile={
             profile ?? (
               <Avatar className="h-8 w-8">

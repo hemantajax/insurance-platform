@@ -27,6 +27,17 @@ export {
 } from './components/sidebar';
 export { PageHeader, type PageHeaderProps } from './components/page-header';
 export {
+  BrandIcon,
+  DashboardIcon,
+  ProductIcon,
+  CustomersIcon,
+  IncomeIcon,
+  PromoteIcon,
+  HelpIcon,
+  SettingsIcon,
+  type NavIconProps,
+} from './icons/nav-icons';
+export {
   StatCard,
   StatsRow,
   type StatCardProps,

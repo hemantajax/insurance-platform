@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import { TrendingDown, TrendingUp } from 'lucide-react';
 
 import {
@@ -18,6 +19,7 @@ export interface StatCardProps {
   trendDirection?: 'up' | 'down';
   icon: React.ReactNode;
   avatars?: Array<{ src?: string; fallback: string }>;
+  href?: string;
   className?: string;
 }
 
@@ -28,12 +30,13 @@ export function StatCard({
   trendDirection = 'up',
   icon,
   avatars,
+  href,
   className,
 }: StatCardProps) {
   const TrendIcon = trendDirection === 'down' ? TrendingDown : TrendingUp;
 
-  return (
-    <div className={cn('flex min-w-0 flex-1 items-center gap-4', className)}>
+  const content = (
+    <>
       <div className="flex h-[84px] w-[84px] shrink-0 items-center justify-center rounded-full bg-success/10 text-success">
         {icon}
       </div>
@@ -69,8 +72,25 @@ export function StatCard({
           </div>
         ) : null}
       </div>
-    </div>
+    </>
   );
+
+  const classes = cn(
+    'flex min-w-0 flex-1 items-center gap-4 rounded-lg outline-none',
+    href &&
+      'cursor-pointer transition-colors hover:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring',
+    className
+  );
+
+  if (href) {
+    return (
+      <Link href={href} className={classes} prefetch aria-label={`${label}: ${value}`}>
+        {content}
+      </Link>
+    );
+  }
+
+  return <div className={classes}>{content}</div>;
 }
 
 export interface StatsRowProps {

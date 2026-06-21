@@ -38,7 +38,19 @@ export default defineConfig(() => ({
     },
     rolldownOptions: {
       // External packages that should not be bundled into your library.
-      external: ['react', 'react-dom', 'react/jsx-runtime'],
+      external: [
+        'react',
+        'react-dom',
+        'react/jsx-runtime',
+        '@org/design-system',
+        '@org/layout',
+        '@org/shared',
+        '@tanstack/react-table',
+        '@tanstack/react-virtual',
+        'next/link',
+        'next',
+        'lucide-react',
+      ],
     },
   },
 }));

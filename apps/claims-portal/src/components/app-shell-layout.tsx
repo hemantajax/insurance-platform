@@ -1,15 +1,18 @@
 'use client';
 
-import {
-  FileText,
-  LayoutDashboard,
-  LogOut,
-  Settings,
-  Users,
-} from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 
-import { PortalShell, type PortalNavItem } from '@org/layout';
+import {
+  CustomersIcon,
+  DashboardIcon,
+  HelpIcon,
+  IncomeIcon,
+  PortalShell,
+  ProductIcon,
+  PromoteIcon,
+  type PortalNavItem,
+} from '@org/layout';
 import {
   Avatar,
   AvatarFallback,
@@ -24,10 +27,12 @@ import { useAuth } from '../lib/auth';
 import { isCrmLayoutRoute } from '../lib/crm-layout';
 
 const navItems: Omit<PortalNavItem, 'active'>[] = [
-  { icon: <LayoutDashboard />, label: 'Dashboard', href: '/dashboard' },
-  { icon: <FileText />, label: 'Claims', href: '/claims' },
-  { icon: <Users />, label: 'Customers', href: '/customers' },
-  { icon: <Settings />, label: 'Settings', href: '/settings' },
+  { icon: <DashboardIcon />, label: 'Dashboard', href: '/dashboard' },
+  { icon: <ProductIcon />, label: 'Product', href: '/product' },
+  { icon: <CustomersIcon />, label: 'Customers', href: '/customers' },
+  { icon: <IncomeIcon />, label: 'Income', href: '/income' },
+  { icon: <PromoteIcon />, label: 'Promote', href: '/promote' },
+  { icon: <HelpIcon />, label: 'Help', href: '/help' },
 ];
 
 export function AppShellLayout({ children }: { children: React.ReactNode }) {

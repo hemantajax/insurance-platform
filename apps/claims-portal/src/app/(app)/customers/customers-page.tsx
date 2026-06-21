@@ -180,6 +180,9 @@ export default function CustomersPageContent() {
       <DataTableCard
         title="All Customers"
         subtitle={isFetching && !isLoading ? 'Updating…' : 'Active Members'}
+        subtitleClassName={
+          isFetching && !isLoading ? undefined : 'font-medium text-success'
+        }
         toolbar={
           <TableToolbar
             searchValue={searchInput}

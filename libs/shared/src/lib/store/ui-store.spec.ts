@@ -6,7 +6,8 @@ describe('useUiStore', () => {
   beforeEach(() => {
     act(() => {
       useUiStore.setState({
-        sidebarOpen: true,
+        sidebarOpen: false,
+        sidebarCollapsed: false,
         selectedClaimId: null,
         commentsPanelOpen: false,
         annotationMode: false,
@@ -14,16 +15,16 @@ describe('useUiStore', () => {
     });
   });
 
-  it('toggles sidebar state', () => {
+  it('toggles desktop sidebar collapsed state', () => {
     const { result } = renderHook(() => useUiStore());
 
-    expect(result.current.sidebarOpen).toBe(true);
+    expect(result.current.sidebarCollapsed).toBe(false);
 
     act(() => {
       result.current.toggleSidebar();
     });
 
-    expect(result.current.sidebarOpen).toBe(false);
+    expect(result.current.sidebarCollapsed).toBe(true);
   });
 
   it('tracks selected claim and workspace panel state', () => {

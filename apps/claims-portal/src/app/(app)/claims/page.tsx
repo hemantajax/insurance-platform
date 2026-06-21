@@ -1,13 +1,10 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 
 import { PageLoader } from '@org/layout';
 
-const ClaimsPageContent = dynamic(() => import('./claims-page'), {
-  loading: () => <PageLoader label="Loading claims…" />,
-});
+import ClaimsPageContent from './claims-page';
 
 export default function ClaimsPage() {
   return (

@@ -22,7 +22,8 @@ export function CrmPageLayout({
   headerActions,
   children,
 }: CrmPageLayoutProps) {
-  const toggleSidebar = useUiStore((state) => state.toggleSidebar);
+  const sidebarOpen = useUiStore((state) => state.sidebarOpen);
+  const setSidebarOpen = useUiStore((state) => state.setSidebarOpen);
 
   return (
     <>
@@ -31,7 +32,7 @@ export function CrmPageLayout({
         searchPlaceholder={searchPlaceholder}
         searchValue={searchValue}
         onSearchChange={onSearchChange}
-        onMenuClick={toggleSidebar}
+        onMenuClick={() => setSidebarOpen(!sidebarOpen)}
         actions={headerActions}
       />
       <div className="flex flex-1 flex-col gap-6 px-8 pb-8 pt-6">{children}</div>

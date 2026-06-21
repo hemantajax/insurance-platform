@@ -1,4 +1,12 @@
-const CRM_LAYOUT_PREFIXES = ['/dashboard', '/claims', '/customers'] as const;
+const CRM_LAYOUT_PREFIXES = [
+  '/dashboard',
+  '/claims',
+  '/customers',
+  '/product',
+  '/income',
+  '/promote',
+  '/help',
+] as const;
 
 export function isCrmLayoutRoute(pathname: string): boolean {
   return CRM_LAYOUT_PREFIXES.some(

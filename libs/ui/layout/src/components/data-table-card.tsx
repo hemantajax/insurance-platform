@@ -162,6 +162,7 @@ function PaginationButton({
 export interface DataTableCardProps {
   title: string;
   subtitle?: string;
+  subtitleClassName?: string;
   toolbar?: React.ReactNode;
   footer?: React.ReactNode;
   pagination?: React.ReactNode;
@@ -172,6 +173,7 @@ export interface DataTableCardProps {
 export function DataTableCard({
   title,
   subtitle,
+  subtitleClassName,
   toolbar,
   footer,
   pagination,
@@ -188,7 +190,14 @@ export function DataTableCard({
             {title}
           </h2>
           {subtitle ? (
-            <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
+            <p
+              className={cn(
+                'mt-1 text-sm text-muted-foreground',
+                subtitleClassName
+              )}
+            >
+              {subtitle}
+            </p>
           ) : null}
         </div>
         {toolbar}

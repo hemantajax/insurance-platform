@@ -19,6 +19,7 @@ export default function DashboardPageContent() {
           value="5,423"
           trend="16% this month"
           icon={<FileText className="h-10 w-10" />}
+          href="/claims"
         />
         <StatCard
           label="Open Claims"
@@ -26,6 +27,7 @@ export default function DashboardPageContent() {
           trend="1% this month"
           trendDirection="down"
           icon={<Users className="h-10 w-10" />}
+          href="/claims?status=open"
         />
         <StatCard
           label="Active Now"
