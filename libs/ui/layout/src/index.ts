@@ -27,6 +27,11 @@ export {
 } from './components/sidebar';
 export { PageHeader, type PageHeaderProps } from './components/page-header';
 export {
+  MobileSidebarProvider,
+  useMobileSidebarToggle,
+  type MobileSidebarContextValue,
+} from './components/mobile-sidebar-context';
+export {
   BrandIcon,
   DashboardIcon,
   ProductIcon,

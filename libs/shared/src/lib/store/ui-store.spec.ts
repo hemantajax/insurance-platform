@@ -27,6 +27,24 @@ describe('useUiStore', () => {
     expect(result.current.sidebarCollapsed).toBe(true);
   });
 
+  it('toggles mobile sidebar open state', () => {
+    const { result } = renderHook(() => useUiStore());
+
+    expect(result.current.sidebarOpen).toBe(false);
+
+    act(() => {
+      result.current.toggleMobileSidebar();
+    });
+
+    expect(result.current.sidebarOpen).toBe(true);
+
+    act(() => {
+      result.current.toggleMobileSidebar();
+    });
+
+    expect(result.current.sidebarOpen).toBe(false);
+  });
+
   it('tracks selected claim and workspace panel state', () => {
     const { result } = renderHook(() => useUiStore());
 

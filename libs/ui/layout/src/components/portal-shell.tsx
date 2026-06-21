@@ -15,6 +15,7 @@ import { AppShell } from './app-shell';
 import { Breadcrumb, type BreadcrumbItem } from './breadcrumb';
 import { ErrorBoundary } from './error-boundary';
 import { Header } from './header';
+import { MobileSidebarProvider } from './mobile-sidebar-context';
 import {
   CustomersIcon,
   DashboardIcon,
@@ -105,6 +106,7 @@ export function PortalShell({
   const sidebarOpen = useUiStore((state) => state.sidebarOpen);
   const sidebarCollapsed = useUiStore((state) => state.sidebarCollapsed);
   const toggleSidebar = useUiStore((state) => state.toggleSidebar);
+  const toggleMobileSidebar = useUiStore((state) => state.toggleMobileSidebar);
   const setSidebarOpen = useUiStore((state) => state.setSidebarOpen);
   const isLargeScreen = useIsLargeScreen();
 
@@ -113,22 +115,25 @@ export function PortalShell({
       return;
     }
 
-    const closeOnMobile = () => {
-      if (window.innerWidth < LG_BREAKPOINT) {
+    if (window.innerWidth < LG_BREAKPOINT) {
+      setSidebarOpen(false);
+    }
+
+    let lastWidth = window.innerWidth;
+
+    const closeOnMobileWidthChange = () => {
+      const width = window.innerWidth;
+      if (width !== lastWidth && width < LG_BREAKPOINT) {
         setSidebarOpen(false);
       }
+      lastWidth = width;
     };
 
-    closeOnMobile();
-    window.addEventListener('resize', closeOnMobile);
-    return () => window.removeEventListener('resize', closeOnMobile);
+    window.addEventListener('resize', closeOnMobileWidthChange);
+    return () => window.removeEventListener('resize', closeOnMobileWidthChange);
   }, [setSidebarOpen]);
 
   const isCollapsed = isLargeScreen && sidebarCollapsed;
-
-  const handleMobileMenuClick = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
 
   const handleNavNavigate = () => {
     setSidebarOpen(false);
@@ -167,9 +172,11 @@ export function PortalShell({
           <Sidebar
             collapsed={isCollapsed}
             className={cn(
-              'z-50 max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:transition-transform max-lg:duration-200',
-              sidebarOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full',
-              'lg:relative lg:translate-x-0'
+              'max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:transition-transform max-lg:duration-200',
+              sidebarOpen
+                ? 'z-50 max-lg:translate-x-0 max-lg:pointer-events-auto'
+                : 'z-50 max-lg:-translate-x-full max-lg:pointer-events-none',
+              'lg:relative lg:z-auto lg:translate-x-0 lg:pointer-events-auto'
             )}
             brand={
               <SidebarBrand
@@ -206,7 +213,7 @@ export function PortalShell({
       {showHeader ? (
         <Header
           title="ABC Insurance"
-          onMenuClick={handleMobileMenuClick}
+          onMenuClick={toggleMobileSidebar}
           profile={
             profile ?? (
               <Avatar className="h-8 w-8">
@@ -218,14 +225,16 @@ export function PortalShell({
       ) : null}
       {showBreadcrumb ? <Breadcrumb items={breadcrumbs} /> : null}
       <ErrorBoundary>
-        <div
-          className={cn(
-            'flex flex-1 flex-col overflow-auto px-4 pb-6 lg:px-6',
-            contentClassName
-          )}
-        >
-          {children}
-        </div>
+        <MobileSidebarProvider value={{ toggleMobileSidebar }}>
+          <div
+            className={cn(
+              'flex flex-1 flex-col overflow-auto px-4 pb-6 lg:px-6',
+              contentClassName
+            )}
+          >
+            {children}
+          </div>
+        </MobileSidebarProvider>
       </ErrorBoundary>
     </AppShell>
   );

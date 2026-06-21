@@ -2,8 +2,7 @@
 
 import * as React from 'react';
 
-import { PageHeader } from '@org/layout';
-import { useUiStore } from '@org/shared';
+import { PageHeader, useMobileSidebarToggle } from '@org/layout';
 
 export interface CrmPageLayoutProps {
   title: string;
@@ -22,8 +21,7 @@ export function CrmPageLayout({
   headerActions,
   children,
 }: CrmPageLayoutProps) {
-  const sidebarOpen = useUiStore((state) => state.sidebarOpen);
-  const setSidebarOpen = useUiStore((state) => state.setSidebarOpen);
+  const toggleMobileSidebar = useMobileSidebarToggle();
 
   return (
     <>
@@ -32,7 +30,7 @@ export function CrmPageLayout({
         searchPlaceholder={searchPlaceholder}
         searchValue={searchValue}
         onSearchChange={onSearchChange}
-        onMenuClick={() => setSidebarOpen(!sidebarOpen)}
+        onMenuClick={toggleMobileSidebar}
         actions={headerActions}
       />
       <div className="flex flex-1 flex-col gap-6 px-8 pb-8 pt-6">{children}</div>

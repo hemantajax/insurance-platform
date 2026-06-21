@@ -27,7 +27,7 @@ export function PageHeader({
   return (
     <header
       className={cn(
-        'flex flex-wrap items-center justify-between gap-4 px-8 pt-10',
+        'relative z-30 flex flex-wrap items-center justify-between gap-4 px-8 pt-10',
         className
       )}
     >

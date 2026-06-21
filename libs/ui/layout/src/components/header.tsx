@@ -27,7 +27,7 @@ export function Header({
   return (
     <header
       className={cn(
-        'flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background px-4 lg:px-6',
+        'relative z-30 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background px-4 lg:px-6',
         className
       )}
     >

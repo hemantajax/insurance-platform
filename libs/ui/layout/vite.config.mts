@@ -44,6 +44,8 @@ export default defineConfig(() => ({
         'react/jsx-runtime',
         'next/link',
         '@org/design-system',
+        '@org/shared',
+        'zustand',
         'lucide-react',
       ],
     },

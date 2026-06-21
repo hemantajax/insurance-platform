@@ -9,6 +9,7 @@ export interface UiState {
   commentsPanelOpen: boolean;
   annotationMode: boolean;
   toggleSidebar: () => void;
+  toggleMobileSidebar: () => void;
   setSidebarOpen: (open: boolean) => void;
   setSidebarCollapsed: (collapsed: boolean) => void;
   setSelectedClaimId: (id: string | null) => void;
@@ -24,6 +25,8 @@ export const useUiStore = create<UiState>((set) => ({
   annotationMode: false,
   toggleSidebar: () =>
     set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
+  toggleMobileSidebar: () =>
+    set((state) => ({ sidebarOpen: !state.sidebarOpen })),
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
   setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
   setSelectedClaimId: (id) => set({ selectedClaimId: id }),
