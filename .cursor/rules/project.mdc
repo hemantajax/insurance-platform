@@ -1,655 +1,286 @@
-This is the plan I would actually follow to complete the case study in **1 day** while still demonstrating architect-level thinking.
+---
+description: Insurance claims portal case study — architecture, performance, and implementation plan aligned with Nx workspace
+alwaysApply: true
+---
 
-its just quick view , improve change tech stack with react eco system if needed , 
+# Insurance Platform — Senior UI Case Study Plan
 
-follow nx styles folder structure apps/ libs/ etc 
-
-# Insurance Platform - Case Study Implementation Plan
-
-## Project Overview
-
-### Workspace
-
-```txt
-insurance-platform
-```
-
-### Application
-
-```txt
-claims-portal
-```
-
-### Tech Stack
-
-* Nx Monorepo
-* Next.js 15
-* React 19
-* TypeScript
-* Tailwind CSS v4
-* shadcn/ui
-* TanStack Query
-* TanStack Table
-* TanStack Virtual
-* Zustand
-* React PDF / PDF.js
-* Mock Service Worker or Next Route Handlers
-* Workbox Service Worker
-* Vercel Deployment
+Implementation guide for the ABC Insurance claims adjudication portal. Priorities: **architecture**, **performance**, and **code quality**. Follow the existing Nx monorepo layout; do not invent parallel folder conventions.
 
 ---
 
-# Phase 0 - Foundation Setup
+## Case Study Context
 
-## Goal
+ABC Insurance is rebuilding a legacy claims system with a modern UI. The app integrates internal/external services for risk assessment and handles document-heavy workflows (email, SFTP, structured/unstructured data).
 
-Establish scalable architecture before implementing features.
+### Functional Requirements
 
-## Deliverables
+| Area | Requirement |
+|------|-------------|
+| **Claims grid** | 20,000+ records; server-side sort/filter; row actions Edit / Delete / Assign; pagination or justified alternative (virtualization) |
+| **RBAC** | Records and UI actions filtered by role; **backend = source of truth**, frontend = UX (show/hide/disable) |
+| **Grid → workspace** | Row selection opens associated documents (150 MB–1 GB); smooth transition with loading/progress states |
+| **Document workspace** | Efficient large-doc viewing; edit, split, merge, delete; page-level comments; annotations |
 
-### Workspace Structure
+### Non-Functional Requirements
 
-```txt
-apps/
-└── claims-portal
+| Area | Requirement |
+|------|-------------|
+| **Performance** | Responsive UI; minimal re-renders; bounded memory for grid and document viewer |
+| **Scalability** | Growing record volume, document size, concurrent users/operations |
+| **UX** | Clear loading/progress; perceived performance; error recovery; cancel/retry for long-running jobs |
+| **Reliability** | Consistent document state after split/merge/comment; graceful partial-failure handling |
 
-libs/
-├── design-system
-├── shared
-├── auth
-├── claims
-├── documents
-├── workers
-```
+### Evaluation Focus (document in README / architecture notes)
 
-### Setup
-
-* Next.js Application
-* Tailwind
-* shadcn/ui
-* ESLint
-* Prettier
-* Husky
-* Commitlint
-
-### Design Tokens
-
-```txt
-libs/design-system/src/tokens
-```
-
-* Colors
-* Typography
-* Spacing
-* Shadows
-* Radius
-
-### Theme Support
-
-* Light Theme
-* Dark Theme
+- **Architecture** — component boundaries, state management, data fetching/caching, API assumptions, authz/validation placement
+- **Performance strategy** — 20k+ rows (server ops + virtualization); 1 GB docs (streaming, partial load, web workers, chunked ops)
+- **Trade-offs** — pagination vs virtualization; client vs server processing; caching; optimistic vs pessimistic updates
 
 ---
 
-# Phase 1 - Application Shell
-
-## Goal
-
-Create foundation for all future screens.
-
-## Features
-
-### Layout
-
-* Header
-* Sidebar
-* Breadcrumb
-* User Profile
-
-### Global Components
-
-* Page Loader
-* Error Boundary
-* Empty State
-* Permission Wrapper
-
-### State
-
-Zustand Store
+## Workspace Overview
 
 ```txt
-theme
-sidebar
-selected claim
-workspace state
+insurance-platform          # Nx monorepo (@org/* packages)
+├── apps/
+│   ├── claims-portal       # @org/claims-portal — Next.js app shell, routes, API handlers
+│   └── claims-portal-e2e   # @org/claims-portal-e2e — Playwright e2e
+└── libs/
+    ├── design-system       # @org/design-system — tokens, shadcn/ui, theme
+    ├── shared              # @org/shared — types, utils, API client, constants
+    ├── auth                # @org/auth — session, RBAC, usePermission, <Can>
+    ├── claims              # @org/claims — domain logic, TanStack Query hooks
+    ├── documents           # @org/documents — viewer, annotations, comments, jobs, workers
+    └── ui/
+        ├── data-grid       # @org/data-grid — TanStack Table + Virtual (20k+ rows)
+        └── layout          # @org/layout — header, sidebar, breadcrumb, shell
 ```
 
-### Deliverables
+### Dependency Rules (enforce via imports, not convention)
 
-* Responsive Layout
-* Theme Switching
-* Error Handling
+```txt
+apps/claims-portal
+  → libs/ui/*, libs/claims, libs/documents, libs/auth, libs/design-system, libs/shared
+
+libs/ui/*
+  → libs/design-system, libs/shared, libs/auth (layout only)
+
+libs/claims | libs/documents | libs/auth
+  → libs/shared, libs/design-system (UI primitives only)
+
+libs/shared
+  → no domain or UI libs
+
+libs/design-system
+  → no domain libs
+```
+
+- **Apps** compose features; keep business logic out of `page.tsx` / route files.
+- **Domain libs** (`claims`, `documents`, `auth`) own data hooks, types, and feature logic.
+- **UI libs** (`data-grid`, `layout`) own presentation; accept data/callbacks via props.
+- **API route handlers** live in `apps/claims-portal/src/app/api/` (mock backend for case study).
+
+Run tasks through Nx: `pnpm nx dev @org/claims-portal`, `pnpm nx affected -t lint test build`.
 
 ---
 
-# Phase 2 - Authentication & RBAC
+## Tech Stack
 
-## Goal
-
-Implement role-based experience.
-
-## Roles
-
-### Claim Processor
-
-```txt
-View
-Edit
-Comment
-```
-
-### Supervisor
-
-```txt
-View
-Edit
-Delete
-Assign
-Approve
-```
-
-### Auditor
-
-```txt
-Read Only
-```
-
-## Features
-
-### Login
-
-Mock Login
-
-### JWT Parsing
-
-Extract permissions
-
-### Permission Hook
-
-```tsx
-usePermission()
-```
-
-### Permission Components
-
-```tsx
-<Can permission="claim.edit">
-```
-
-### Deliverables
-
-* Login
-* RBAC
-* Protected Routes
-* Hidden Actions
+| Layer | Choice | Notes |
+|-------|--------|-------|
+| Monorepo | Nx 23 | `apps/*`, `libs/*`, `libs/ui/*` workspaces |
+| Framework | Next.js 16 (App Router) | SSR shell; client islands for grid/viewer |
+| UI | React 19, TypeScript strict | SCSS modules + Tailwind v4 + shadcn/ui |
+| Data fetching | TanStack Query | Server-state cache, stale-while-revalidate, mutation rollback |
+| Grid | TanStack Table + TanStack Virtual | Server-side sort/filter/page; virtual rows within page |
+| Client UI state | Zustand | Theme, sidebar, selected claim, workspace panel state only |
+| Documents | PDF.js / react-pdf | Page-level virtualization; range/stream requests |
+| Heavy work | Web Workers | Split/merge parsing, thumbnail generation — under `libs/documents` |
+| Mock API | Next Route Handlers | Fake DB, delays, error simulation |
+| Testing | Jest (libs), Playwright (e2e) | Unit for hooks/utils; e2e for critical flows |
+| Deploy | Vercel | Optional PWA via Workbox later |
 
 ---
 
-# Phase 3 - Claims Dashboard
+## Architecture Principles
 
-## Goal
+### Performance
 
-Handle 20,000+ records efficiently.
+**Grid (20k+ records)**
 
-## Components
+- Server-side pagination, sort, and filter — never load full dataset to client.
+- TanStack Virtual renders only visible rows within the current page (~50–100 rows).
+- Debounced search (300 ms); stable row keys; memoized column defs and cell renderers.
+- Prefetch claim detail + document metadata on row hover/focus (TanStack Query `prefetchQuery`).
 
-### Claims Grid
+**Documents (150 MB–1 GB)**
 
-TanStack Table
+- Never download full file upfront; use HTTP range requests / page-level chunks.
+- Virtualize pages — render visible pages only; skeleton placeholders elsewhere.
+- Evict off-screen page bitmaps from memory; cap concurrent page renders.
+- Offload split/merge/page extraction to Web Workers; stream progress to UI.
+- Transition grid → workspace: show progress bar, cancelable fetch, optimistic route prefetch.
 
-### Virtualized Rows
+**React**
 
-TanStack Virtual
+- Route-level `dynamic()` for dashboard, workspace, dialogs.
+- Split viewer, comments panel, and job modals into lazy chunks.
+- Avoid prop drilling that causes grid re-renders; isolate workspace state from grid store.
 
-### Filters
+### Code Quality
 
-* Claim Number
-* Status
-* Assignee
+- **Strict TypeScript** — shared types in `@org/shared`; no `any` in domain code.
+- **Single responsibility** — one hook per query/mutation; pure utils in `shared`.
+- **Colocation** — feature components live in the lib that owns the domain.
+- **Explicit error boundaries** — grid, viewer, and job tracker each wrapped.
+- **Accessible UI** — keyboard row nav, focus management on workspace open, ARIA on dialogs.
+- **Lint + format** — ESLint + Prettier via Nx targets before merge.
+- **Tests where behavior matters** — RBAC guards, pagination helpers, job state machine.
 
-### Sorting
+### Authorization
 
-Server Side
+| Layer | Responsibility |
+|-------|----------------|
+| API (route handlers) | Enforce permissions; filter records; reject unauthorized mutations |
+| TanStack Query | Cache only what the user is allowed to see |
+| `@org/auth` | `usePermission()`, `<Can permission="claim.edit">` — hide/disable UI |
+| Components | Never rely on UI-only hiding as security |
 
-### Pagination
-
-Server Side
-
-### Actions
-
-* Edit
-* Delete
-* Assign
-
-## Features
-
-### Search
-
-Debounced Search
-
-### Bulk Selection
-
-Checkbox Selection
-
-### Column Visibility
-
-Show Hide Columns
-
-### Deliverables
-
-* 50,000 Mock Records
-* Virtualization
-* Sorting
-* Filtering
-* Pagination
+Roles: **Claim Processor** (view, edit, comment), **Supervisor** (+ delete, assign, approve), **Auditor** (read-only).
 
 ---
 
-# Phase 4 - Mock Backend Layer
+## Implementation Phases
 
-## Goal
+### Phase 0 — Foundation
 
-Simulate enterprise APIs.
+- Design tokens: `libs/design-system/src/tokens` (colors, typography, spacing, radius, shadows)
+- Light/dark theme; shadcn/ui base components
+- ESLint, Prettier, Husky, Commitlint
 
-## APIs
+### Phase 1 — Application Shell (`@org/layout`, `@org/design-system`)
 
-### Claims
+- Header, sidebar, breadcrumb, user profile
+- Global: page loader, error boundary, empty state, permission wrapper
+- Zustand: theme, sidebar, selected claim, workspace panel state
+
+### Phase 2 — Authentication & RBAC (`@org/auth`)
+
+- Mock login; JWT/session parsing; protected routes
+- `usePermission()`, `<Can>`; role-based action visibility
+
+### Phase 3 — Claims Dashboard (`@org/data-grid`, `@org/claims`)
+
+- Server-paginated grid with TanStack Table + Virtual
+- Filters: claim number, status, assignee; debounced search
+- Row actions: edit, delete, assign (permission-gated)
+- Bulk selection, column visibility
+- 50,000 mock records via API; justify **server pagination + row virtualization** in docs
+
+### Phase 4 — Mock Backend (`apps/claims-portal/src/app/api`)
 
 ```http
-GET /api/claims
-GET /api/claims/:id
-PUT /api/claims/:id
+GET    /api/claims              # paginated, filtered, sorted
+GET    /api/claims/:id
+PUT    /api/claims/:id
 DELETE /api/claims/:id
+GET    /api/documents/:id       # metadata + page range URLs
+POST   /api/comments
+GET    /api/comments
+POST   /api/jobs/split
+POST   /api/jobs/merge
+GET    /api/jobs/:id            # progress polling
 ```
 
-### Documents
+- Fake DB, artificial delays, configurable error rates
 
-```http
-GET /api/documents/:id
-```
-
-### Comments
-
-```http
-POST /api/comments
-GET /api/comments
-```
-
-### Jobs
-
-```http
-POST /api/jobs/split
-POST /api/jobs/merge
-
-GET /api/jobs/:id
-```
-
-## Deliverables
-
-* Fake Database
-* Pagination APIs
-* Delayed Responses
-* Error Simulation
-
----
-
-# Phase 5 - Document Workspace
-
-## Goal
-
-Open claim and view documents.
-
-## Layout
+### Phase 5 — Document Workspace (`@org/documents`, `@org/layout`)
 
 ```txt
---------------------------------
 Toolbar
---------------------------------
-Document Viewer
---------------------------------
-Comments Panel
---------------------------------
+Document Viewer (PDF)
+Comments / Annotations Panel
 ```
 
-## Features
+- PDF viewer: page nav, zoom, rotate; metadata (page count, size, modified)
+- Smooth grid → workspace transition with loading/progress
 
-### Viewer
+### Phase 6 — Large Document Strategy (`@org/documents`)
 
-* PDF Viewer
-* Page Navigation
-* Zoom
-* Rotate
+- Page virtualization, lazy page load, skeleton pages, memory cleanup
+- Range/chunked fetching; target smooth scroll at low memory
 
-### Metadata
+### Phase 7 — Comments & Annotations (`@org/documents`)
 
-* Page Count
-* File Size
-* Last Modified
+- Page-level comments: add, edit, delete
+- Annotation layer (mock): highlight, rectangle, sticky note
 
-### Deliverables
+### Phase 8 — Split / Merge Workflow (`@org/documents`)
 
-* PDF Rendering
-* Page Navigation
-* Zoom Controls
+- Split: select page ranges → job; Merge: select documents → job
+- Progress tracking (0 → 25 → 50 → 75 → 100%); cancel/retry on failure
 
----
+### Phase 9 — Performance Pass
 
-# Phase 6 - Large Document Strategy
+- Route/component/dialog lazy loading; React.memo where profiling shows benefit
+- Query cache tuning; prefetch strategies; bundle analysis
 
-## Goal
+### Phase 10 — PWA & Offline (optional stretch)
 
-Show architecture for 1GB documents.
+- Workbox: cache static assets + claims list API
+- Offline fallback screen
 
-## Features
+### Phase 11 — Responsive UX
 
-### Page Virtualization
+- Desktop: full workspace; Tablet: collapsible panels; Mobile: dashboard + read-only viewer
 
-Only visible pages rendered.
+### Phase 12 — Architecture Documentation
 
-### Lazy Page Loading
-
-Load on demand.
-
-### Skeleton Pages
-
-Display placeholders.
-
-### Memory Cleanup
-
-Unload invisible pages.
-
-## Deliverables
-
-* Virtualized PDF Pages
-* Smooth Scrolling
-* Low Memory Usage
+- Layer diagram (Presentation → Business → Data → Infrastructure)
+- Trade-off matrix (see below); README with run/deploy instructions
 
 ---
 
-# Phase 7 - Comments & Annotations
+## Trade-Off Matrix (document decisions)
 
-## Goal
-
-Support document collaboration.
-
-## Features
-
-### Page Comments
-
-* Add Comment
-* Edit Comment
-* Delete Comment
-
-### Annotation Layer
-
-Mock Implementation
-
-* Highlight
-* Rectangle
-* Sticky Note
-
-### Deliverables
-
-* Comment Sidebar
-* Annotation Overlay
+| Decision | Chosen approach | Rationale |
+|----------|-----------------|-----------|
+| Grid data window | Server pagination + row virtualization | Bounded memory; works at 20k+ scale; sort/filter stay server-side |
+| vs infinite scroll | Pagination | Predictable UX; easier RBAC filtering; simpler cache invalidation |
+| Document load | Streaming / page-range fetch | Full download of 1 GB doc is unacceptable on client |
+| Split/merge | Server job + polling/WebSocket mock | Long-running; cancel/retry; consistent state |
+| RBAC enforcement | Backend primary, frontend UX | Security at API; UI prevents confusion |
+| Server vs client state | TanStack Query + Zustand | Query for server data; Zustand for ephemeral UI only |
+| Mutations | Pessimistic for delete/split/merge; optimistic for comments | Reliability over snappiness for destructive/long ops |
 
 ---
 
-# Phase 8 - Split / Merge Workflow
+## Core Feature Checklist
 
-## Goal
+| Domain | Features |
+|--------|----------|
+| Foundation | Theme, design tokens, layout shell, error boundary |
+| Auth | Login, RBAC, permission components |
+| Dashboard | Virtual grid, search, filter, sort, pagination, row actions |
+| Workspace | Viewer, navigation, zoom, comments, annotations |
+| Operations | Split, merge, job tracking |
+| Performance | Lazy loading, virtualization, optional service worker |
 
-Simulate long-running operations.
-
-## Split
-
-Select Pages
-
-```txt
-1-10
-11-20
-```
-
-Generate Job
-
-## Merge
-
-Select Multiple Documents
-
-Generate Job
-
-## Job Tracking
-
-Progress Bar
-
-```txt
-0%
-25%
-50%
-75%
-100%
-```
-
-### Deliverables
-
-* Split Dialog
-* Merge Dialog
-* Progress Tracking
+**Total: 24 core features** — implement in phase order; do not skip RBAC or server-side grid ops.
 
 ---
 
-# Phase 9 - Performance Optimization
-
-## Goal
-
-Demonstrate frontend performance knowledge.
-
-## Lazy Loading
-
-### Route Level
-
-* Dashboard
-* Workspace
-
-### Component Level
-
-* Viewer
-* Comments
-
-### Dialog Level
-
-* Edit
-* Assign
-* Delete
-* Split
-* Merge
-
-## React Optimizations
-
-* Memoization
-* Dynamic Imports
-* Suspense
-
-## Deliverables
-
-* Lazy Chunks
-* Loading States
-
----
-
-# Phase 10 - PWA & Offline
-
-## Goal
-
-Enterprise readiness.
-
-## Service Worker
-
-### Cache Assets
-
-* JS
-* CSS
-* Fonts
-
-### Cache APIs
-
-* Claims List
-
-### Offline Screen
-
-Display fallback page.
-
-## Deliverables
-
-* Installable App
-* Offline Support
-
----
-
-# Phase 11 - Responsive Experience
-
-## Goal
-
-Support desktop and tablet.
-
-## Breakpoints
-
-### Desktop
-
-Full Workspace
-
-### Tablet
-
-Collapsible Panels
-
-### Mobile
-
-Dashboard Only
-
-Document Viewer Read Only
-
-## Deliverables
-
-* Responsive Layout
-* Mobile Navigation
-
----
-
-# Phase 12 - Architecture Documentation
-
-## Goal
-
-Explain decisions and trade-offs.
-
-## Architecture Diagram
-
-### Layers
-
-```txt
-Presentation
-Business
-Data
-Infrastructure
-```
-
-## Performance Discussion
-
-### Grid
-
-Virtualization vs Pagination
-
-### Documents
-
-Streaming vs Full Download
-
-### RBAC
-
-Frontend vs Backend
-
-### State
-
-Zustand vs Redux
-
-### Data
-
-TanStack Query vs Custom Fetch
-
-## Deliverables
-
-* Architecture Diagram
-* Trade-off Matrix
-* README
-
-````
-
-# Total Feature Count
-
-## Foundation
-
-- Theme
-- Design Tokens
-- Layout
-- Error Boundary
-
-= 4 Features
-
-## Authentication
-
-- Login
-- RBAC
-- Permissions
-
-= 3 Features
-
-## Dashboard
-
-- Virtual Grid
-- Search
-- Filter
-- Sort
-- Pagination
-- Row Actions
-
-= 6 Features
-
-## Document Workspace
-
-- Viewer
-- Navigation
-- Zoom
-- Comments
-- Annotations
-
-= 5 Features
-
-## Operations
-
-- Split
-- Merge
-- Job Tracking
-
-= 3 Features
-
-## Performance
-
-- Lazy Loading
-- Virtualization
-- Service Worker
-
-= 3 Features
-
-## Total
-
-```txt
-24 Core Features
-````
+## Quick Reference — Where Code Lives
+
+| Concern | Location |
+|---------|----------|
+| Pages / routing | `apps/claims-portal/src/app/` |
+| API handlers | `apps/claims-portal/src/app/api/` |
+| Grid UI | `libs/ui/data-grid/src/` |
+| Shell layout | `libs/ui/layout/src/` |
+| Claims hooks/types | `libs/claims/src/` |
+| PDF/viewer/jobs/workers | `libs/documents/src/` |
+| Auth/RBAC | `libs/auth/src/` |
+| Shared types/utils | `libs/shared/src/` |
+| Tokens/components | `libs/design-system/src/` |

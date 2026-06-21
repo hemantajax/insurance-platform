@@ -1,9 +1,14 @@
 # Docs
 
-Documentation generated using the `/research` command. These are primarily meant for developers working on the project, not for the AI's context.
+Architecture and planning documentation for the insurance claims portal case study.
 
-- `project-spec.md` - Original project planning spec
-- `item-types.md` - Documentation on the different item types and their fields
-- `item-crud-architecture.md` - CRUD strategy and architecture for items
-- `ai-integration-plan.md` - Plan for integrating AI features (auto-tagging, summaries, etc.)
-- `stripe-integration-plan.md` - Plan for Stripe payments and subscription billing
+| Document | Description |
+|----------|-------------|
+| `architecture.md` | Layer diagram, trade-offs, performance strategy (created in Phase 12) |
+
+Implementation plan and phase details live in:
+
+- `.cursor/rules/project.mdc` — master plan
+- `context/features/claims-portal-master-spec.md` — feature spec index
+
+Generate new research docs with the `/research` skill when needed.
