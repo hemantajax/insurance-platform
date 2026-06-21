@@ -11,7 +11,19 @@ pnpm nx dev @org/claims-portal
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## Workspace
+## Live deployment
+
+**Preview:** [https://insurance-platform-claims-portal-avziogr27.vercel.app](https://insurance-platform-claims-portal-avziogr27.vercel.app)
+
+| Page | URL |
+|------|-----|
+| Customers | [/customers](https://insurance-platform-claims-portal-avziogr27.vercel.app/customers) |
+| Claims | [/claims](https://insurance-platform-claims-portal-avziogr27.vercel.app/claims) |
+| Dashboard | [/dashboard](https://insurance-platform-claims-portal-avziogr27.vercel.app/dashboard) |
+| Login | [/login](https://insurance-platform-claims-portal-avziogr27.vercel.app/login) |
+
+Mock API is on the same host (e.g. `/api/claims`, `/api/customers`, `/api/auth/session`).
+
 
 | Project | Path | Role |
 |---------|------|------|
@@ -62,6 +74,26 @@ Next.js 16 · React 19 · TypeScript · Nx 23 · Tailwind v4 · shadcn/ui · Tan
 
 The claims portal is a **single Next.js deployment**: UI pages and mock API (`/api/*`) ship together as [Vercel Serverless Functions](https://vercel.com/docs/functions). No separate backend service is required for the case-study mock API.
 
+### Do you need to run npm to deploy?
+
+**No** — for normal workflow you only **push to `main`**. Deployment is automatic via:
+
+1. **Vercel Git integration** (push to `main` → Vercel builds and deploys), and/or
+2. **GitHub Actions** (`.github/workflows/vercel-deploy.yml` on push to `main`)
+
+You do **not** need to run `npm run deploy:vercel` unless you want a **manual** deploy from your machine.
+
+```bash
+git push origin main   # that's it — CI + deploy run in the cloud
+```
+
+Optional manual deploy (only if you want to ship from local without pushing):
+
+```bash
+npm run deploy:vercel:preview    # preview
+npm run deploy:vercel            # production
+```
+
 ### One-time project setup
 
 1. Sign in at [Vercel](https://vercel.com/hemants-projects-bcff30f7) and **Import** this Git repository.
@@ -87,6 +119,7 @@ These deploy automatically with the app:
 | `POST /api/auth/login` | Mock login (role cookie) |
 | `GET /api/auth/session` | Current session |
 | `GET /api/claims` | Paginated claims list |
+| `GET /api/customers` | Paginated customers list (256K mock records) |
 | `GET/PUT/DELETE /api/claims/:id` | Claim CRUD |
 | `GET /api/documents/:id` | Document metadata |
 | `GET/POST /api/comments` | Comments |
@@ -95,12 +128,12 @@ These deploy automatically with the app:
 
 The frontend uses relative `/api/...` URLs, so no `NEXT_PUBLIC_API_URL` is needed when UI and API share the same Vercel domain.
 
-### CLI deploy
+### Manual CLI deploy (optional)
+
+One-time link to your Vercel project:
 
 ```bash
-npm run vercel:link              # one-time: link local repo to Vercel project
-npm run deploy:vercel:preview    # preview deployment
-npm run deploy:vercel            # production deployment
+npm run vercel:link
 ```
 
 Prebuilt pipeline (matches GitHub Action):

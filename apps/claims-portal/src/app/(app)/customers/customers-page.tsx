@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter, useSearchParams } from 'next/navigation';
 import * as React from 'react';
 import { Monitor, Users } from 'lucide-react';
 
@@ -12,6 +13,7 @@ import {
   TableToolbar,
 } from '@org/layout';
 import {
+  Skeleton,
   Table,
   TableBody,
   TableCell,
@@ -19,113 +21,118 @@ import {
   TableHeader,
   TableRow,
 } from '@org/design-system';
+import type { CustomerStatus, CustomersListParams } from '@org/shared';
 
 import { CrmPageLayout } from '../../../components/crm-page-layout';
 import { useAuth } from '../../../lib/auth';
+import { useCustomersQuery } from '../../../lib/customers';
 
-const customers = [
-  {
-    name: 'Jane Cooper',
-    company: 'Microsoft',
-    phone: '(225) 555-0118',
-    email: 'jane@microsoft.com',
-    country: 'United States',
-    status: 'active' as const,
-  },
-  {
-    name: 'Floyd Miles',
-    company: 'Yahoo',
-    phone: '(205) 555-0100',
-    email: 'floyd@yahoo.com',
-    country: 'Kiribati',
-    status: 'inactive' as const,
-  },
-  {
-    name: 'Ronald Richards',
-    company: 'Adobe',
-    phone: '(302) 555-0107',
-    email: 'ronald@adobe.com',
-    country: 'Israel',
-    status: 'inactive' as const,
-  },
-  {
-    name: 'Marvin McKinney',
-    company: 'Tesla',
-    phone: '(252) 555-0126',
-    email: 'marvin@tesla.com',
-    country: 'Iran',
-    status: 'active' as const,
-  },
-  {
-    name: 'Jerome Bell',
-    company: 'Google',
-    phone: '(629) 555-0129',
-    email: 'jerome@google.com',
-    country: 'Réunion',
-    status: 'active' as const,
-  },
-  {
-    name: 'Kathryn Murphy',
-    company: 'Microsoft',
-    phone: '(406) 555-0120',
-    email: 'kathryn@microsoft.com',
-    country: 'Curaçao',
-    status: 'active' as const,
-  },
-  {
-    name: 'Jacob Jones',
-    company: 'Yahoo',
-    phone: '(208) 555-0112',
-    email: 'jacob@yahoo.com',
-    country: 'Brazil',
-    status: 'active' as const,
-  },
-  {
-    name: 'Kristin Watson',
-    company: 'Facebook',
-    phone: '(704) 555-0127',
-    email: 'kristin@facebook.com',
-    country: 'Åland Islands',
-    status: 'inactive' as const,
-  },
-];
+const PAGE_SIZE = 8;
+
+function useDebouncedValue<T>(value: T, delayMs: number): T {
+  const [debounced, setDebounced] = React.useState(value);
+  React.useEffect(() => {
+    const timer = window.setTimeout(() => setDebounced(value), delayMs);
+    return () => window.clearTimeout(timer);
+  }, [value, delayMs]);
+  return debounced;
+}
+
+function parseParams(searchParams: URLSearchParams): CustomersListParams {
+  const sort = searchParams.get('sort');
+  return {
+    page: Number(searchParams.get('page') ?? '1') || 1,
+    pageSize: PAGE_SIZE,
+    sort:
+      sort === 'newest' || sort === 'oldest' || sort === 'name' || sort === 'company'
+        ? sort
+        : 'newest',
+    q: searchParams.get('q') ?? undefined,
+    status: (searchParams.get('status') as CustomerStatus | null) ?? undefined,
+  };
+}
+
+function formatTotal(value: number): string {
+  if (value >= 1_000_000) {
+    return `${(value / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
+  }
+  if (value >= 1_000) {
+    return `${Math.round(value / 1_000)}K`;
+  }
+  return value.toLocaleString();
+}
+
+function formatFooter(page: number, pageSize: number, total: number): string {
+  if (total === 0) {
+    return 'No entries to show';
+  }
+  const start = (page - 1) * pageSize + 1;
+  const end = Math.min(page * pageSize, total);
+  return `Showing data ${start.toLocaleString()} to ${end.toLocaleString()} of ${formatTotal(total)} entries`;
+}
 
 export default function CustomersPageContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const params = React.useMemo(() => parseParams(searchParams), [searchParams]);
   const { user } = useAuth();
   const firstName = user?.name.split(' ')[0] ?? 'Evano';
-  const [page, setPage] = React.useState(1);
-  const [tableSearch, setTableSearch] = React.useState('');
-  const [sort, setSort] = React.useState('newest');
 
-  const filtered = customers.filter((row) => {
-    const query = tableSearch.toLowerCase();
-    if (!query) return true;
-    return (
-      row.name.toLowerCase().includes(query) ||
-      row.company.toLowerCase().includes(query) ||
-      row.email.toLowerCase().includes(query)
-    );
-  });
+  const [searchInput, setSearchInput] = React.useState(params.q ?? '');
+  const debouncedSearch = useDebouncedValue(searchInput, 300);
+
+  const updateParams = React.useCallback(
+    (patch: Partial<CustomersListParams>) => {
+      const next = new URLSearchParams(searchParams.toString());
+      const merged = { ...params, ...patch };
+      for (const [key, value] of Object.entries(merged)) {
+        if (value === undefined || value === '') {
+          next.delete(key);
+        } else {
+          next.set(key, String(value));
+        }
+      }
+      router.replace(`/customers?${next.toString()}`);
+    },
+    [params, router, searchParams]
+  );
+
+  React.useEffect(() => {
+    setSearchInput(params.q ?? '');
+  }, [params.q]);
+
+  React.useEffect(() => {
+    if ((params.q ?? '') !== debouncedSearch) {
+      updateParams({ q: debouncedSearch || undefined, page: 1 });
+    }
+  }, [debouncedSearch, params.q, updateParams]);
+
+  const { data, isLoading, isError, isFetching } = useCustomersQuery(params);
+
+  const page = params.page ?? 1;
+  const total = data?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const stats = data?.stats;
 
   return (
     <CrmPageLayout title={`Hello ${firstName} 👋🏼,`} searchPlaceholder="Search">
       <StatsRow>
         <StatCard
           label="Total Customers"
-          value="5,423"
+          value={stats ? stats.total.toLocaleString() : '—'}
           trend="16% this month"
           icon={<Users className="h-10 w-10" />}
         />
         <StatCard
           label="Members"
-          value="1,893"
+          value={stats ? stats.activeMembers.toLocaleString() : '—'}
           trend="1% this month"
           trendDirection="down"
           icon={<Users className="h-10 w-10" />}
         />
         <StatCard
           label="Active Now"
-          value="189"
+          value={stats ? String(stats.activeNow) : '—'}
           icon={<Monitor className="h-10 w-10" />}
           avatars={[
             { fallback: 'A' },
@@ -139,21 +146,26 @@ export default function CustomersPageContent() {
 
       <DataTableCard
         title="All Customers"
-        subtitle="Active Members"
+        subtitle={isFetching && !isLoading ? 'Updating…' : 'Active Members'}
         toolbar={
           <TableToolbar
-            searchValue={tableSearch}
-            onSearchChange={setTableSearch}
-            sortValue={sort}
-            onSortChange={setSort}
+            searchValue={searchInput}
+            onSearchChange={setSearchInput}
+            sortValue={params.sort ?? 'newest'}
+            onSortChange={(sort) =>
+              updateParams({
+                sort: sort as CustomersListParams['sort'],
+                page: 1,
+              })
+            }
           />
         }
-        footer="Showing data 1 to 8 of 256K entries"
+        footer={formatFooter(page, PAGE_SIZE, total)}
         pagination={
           <PaginationControls
             page={page}
-            totalPages={40}
-            onPageChange={setPage}
+            totalPages={totalPages}
+            onPageChange={(nextPage) => updateParams({ page: nextPage })}
           />
         }
       >
@@ -169,18 +181,42 @@ export default function CustomersPageContent() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.map((row) => (
-              <TableRow key={row.email}>
-                <TableCell className="font-medium">{row.name}</TableCell>
-                <TableCell>{row.company}</TableCell>
-                <TableCell>{row.phone}</TableCell>
-                <TableCell>{row.email}</TableCell>
-                <TableCell>{row.country}</TableCell>
-                <TableCell>
-                  <StatusBadge status={row.status} />
+            {isLoading ? (
+              Array.from({ length: PAGE_SIZE }).map((_, index) => (
+                <TableRow key={`skeleton-${index}`}>
+                  {Array.from({ length: 6 }).map((__, cellIndex) => (
+                    <TableCell key={cellIndex}>
+                      <Skeleton className="h-4 w-full max-w-[140px]" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : isError ? (
+              <TableRow>
+                <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                  Failed to load customers. Try again.
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (data?.data.length ?? 0) === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                  No customers match your search.
+                </TableCell>
+              </TableRow>
+            ) : (
+              data?.data.map((row) => (
+                <TableRow key={row.id}>
+                  <TableCell className="font-medium">{row.name}</TableCell>
+                  <TableCell>{row.company}</TableCell>
+                  <TableCell>{row.phone}</TableCell>
+                  <TableCell>{row.email}</TableCell>
+                  <TableCell>{row.country}</TableCell>
+                  <TableCell>
+                    <StatusBadge status={row.status} />
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </DataTableCard>

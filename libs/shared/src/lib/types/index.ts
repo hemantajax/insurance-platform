@@ -56,6 +56,41 @@ export interface ClaimsListResponse {
   pageSize: number;
 }
 
+export type CustomerStatus = 'active' | 'inactive';
+
+export interface Customer {
+  id: string;
+  name: string;
+  company: string;
+  phone: string;
+  email: string;
+  country: string;
+  status: CustomerStatus;
+  createdAt: string;
+}
+
+export interface CustomersListParams {
+  page?: number;
+  pageSize?: number;
+  sort?: 'newest' | 'oldest' | 'name' | 'company';
+  status?: CustomerStatus;
+  q?: string;
+}
+
+export interface CustomersStats {
+  total: number;
+  activeMembers: number;
+  activeNow: number;
+}
+
+export interface CustomersListResponse {
+  data: Customer[];
+  total: number;
+  page: number;
+  pageSize: number;
+  stats: CustomersStats;
+}
+
 export interface DocumentMetadata {
   id: string;
   claimId: string;

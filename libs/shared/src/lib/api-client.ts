@@ -4,6 +4,8 @@ import type {
   ClaimsListResponse,
   Claim,
   Comment,
+  CustomersListParams,
+  CustomersListResponse,
   DocumentMetadata,
   Job,
 } from './types';
@@ -25,6 +27,21 @@ async function parseResponse<T>(response: Response): Promise<T> {
     throw new Error(body.message ?? `Request failed (${response.status})`);
   }
   return response.json() as Promise<T>;
+}
+
+export async function fetchCustomers(
+  params: CustomersListParams = {}
+): Promise<CustomersListResponse> {
+  const response = await fetch(
+    `/api/customers${buildQuery({
+      page: params.page,
+      pageSize: params.pageSize,
+      sort: params.sort,
+      status: params.status,
+      q: params.q,
+    })}`
+  );
+  return parseResponse<CustomersListResponse>(response);
 }
 
 export async function fetchClaims(

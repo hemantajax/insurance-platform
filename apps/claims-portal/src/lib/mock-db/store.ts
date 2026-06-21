@@ -2,6 +2,8 @@ import type {
   Claim,
   ClaimStatus,
   Comment,
+  Customer,
+  CustomerStatus,
   DocumentMetadata,
   Job,
   SessionUser,
@@ -9,6 +11,7 @@ import type {
 import { hasPermission, PERMISSIONS } from '@org/shared';
 
 export const TOTAL_CLAIMS = 50_000;
+export const TOTAL_CUSTOMERS = 256_000;
 export const MOCK_DELAY_MS = { min: 200, max: 800 };
 
 export const ASSIGNEES = [
@@ -174,6 +177,174 @@ export function deleteClaimRecord(id: string): boolean {
   }
   claimCache.delete(index);
   return true;
+}
+
+const CUSTOMER_FIRST_NAMES = [
+  'Jane',
+  'Floyd',
+  'Ronald',
+  'Marvin',
+  'Jerome',
+  'Kathryn',
+  'Jacob',
+  'Kristin',
+  'Alex',
+  'Maria',
+  'David',
+  'Sarah',
+];
+const CUSTOMER_LAST_NAMES = [
+  'Cooper',
+  'Miles',
+  'Richards',
+  'McKinney',
+  'Bell',
+  'Murphy',
+  'Jones',
+  'Watson',
+  'Nguyen',
+  'Patel',
+  'Brooks',
+  'Kim',
+];
+const CUSTOMER_COMPANIES = [
+  'Microsoft',
+  'Yahoo',
+  'Adobe',
+  'Tesla',
+  'Google',
+  'Facebook',
+  'Amazon',
+  'Netflix',
+  'Apple',
+  'Oracle',
+];
+const CUSTOMER_COUNTRIES = [
+  'United States',
+  'Kiribati',
+  'Israel',
+  'Iran',
+  'Réunion',
+  'Curaçao',
+  'Brazil',
+  'Åland Islands',
+  'Canada',
+  'Germany',
+  'Japan',
+  'Australia',
+];
+
+const customerCache = new Map<number, Customer>();
+const ACTIVE_CUSTOMER_RATIO = 0.35;
+
+function formatPhone(random: () => number): string {
+  const area = 200 + Math.floor(random() * 600);
+  const prefix = 100 + Math.floor(random() * 900);
+  const line = String(Math.floor(random() * 10_000)).padStart(4, '0');
+  return `(${area}) ${prefix}-${line}`;
+}
+
+function generateCustomer(index: number): Customer {
+  const random = mulberry32(index + 10_001);
+  const firstName = pick(random, CUSTOMER_FIRST_NAMES);
+  const lastName = pick(random, CUSTOMER_LAST_NAMES);
+  const company = pick(random, CUSTOMER_COMPANIES);
+  const slug = `${firstName}.${lastName}`.toLowerCase().replace(/\s+/g, '');
+  const domain = company.toLowerCase().replace(/\s+/g, '');
+  const status: CustomerStatus = random() < ACTIVE_CUSTOMER_RATIO ? 'active' : 'inactive';
+  const createdAt = new Date(Date.UTC(2023, 0, 1) + index * 3_600_000).toISOString();
+
+  return {
+    id: `customer-${index + 1}`,
+    name: `${firstName} ${lastName}`,
+    company,
+    phone: formatPhone(random),
+    email: `${slug}${index % 97}@${domain}.com`,
+    country: pick(random, CUSTOMER_COUNTRIES),
+    status,
+    createdAt,
+  };
+}
+
+export function getCustomerByIndex(index: number): Customer {
+  const cached = customerCache.get(index);
+  if (cached) {
+    return cached;
+  }
+  const customer = generateCustomer(index);
+  customerCache.set(index, customer);
+  return customer;
+}
+
+export interface CustomersQuery {
+  page: number;
+  pageSize: number;
+  sort?: 'newest' | 'oldest' | 'name' | 'company';
+  status?: CustomerStatus;
+  q?: string;
+}
+
+function compareCustomers(
+  a: Customer,
+  b: Customer,
+  sort: CustomersQuery['sort']
+): number {
+  switch (sort) {
+    case 'name':
+      return a.name.localeCompare(b.name);
+    case 'company':
+      return a.company.localeCompare(b.company);
+    case 'oldest':
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    case 'newest':
+    default:
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  }
+}
+
+function matchesCustomerFilters(customer: Customer, query: CustomersQuery): boolean {
+  if (query.status && customer.status !== query.status) {
+    return false;
+  }
+  if (query.q) {
+    const needle = query.q.toLowerCase();
+    const haystack =
+      `${customer.name} ${customer.company} ${customer.email} ${customer.country}`.toLowerCase();
+    if (!haystack.includes(needle)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+export function getCustomerStats(): {
+  total: number;
+  activeMembers: number;
+  activeNow: number;
+} {
+  return {
+    total: TOTAL_CUSTOMERS,
+    activeMembers: Math.floor(TOTAL_CUSTOMERS * ACTIVE_CUSTOMER_RATIO),
+    activeNow: 189,
+  };
+}
+
+export function queryCustomers(query: CustomersQuery): { data: Customer[]; total: number } {
+  const matches: Customer[] = [];
+
+  for (let index = 0; index < TOTAL_CUSTOMERS; index += 1) {
+    const customer = getCustomerByIndex(index);
+    if (matchesCustomerFilters(customer, query)) {
+      matches.push(customer);
+    }
+  }
+
+  const sort = query.sort ?? 'newest';
+  matches.sort((a, b) => compareCustomers(a, b, sort));
+
+  const start = (query.page - 1) * query.pageSize;
+  const data = matches.slice(start, start + query.pageSize);
+  return { data, total: matches.length };
 }
 
 export function getDocumentMetadata(documentId: string): DocumentMetadata | undefined {
