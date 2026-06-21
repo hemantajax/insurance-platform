@@ -8,7 +8,7 @@ export default function Index() {
    */
   return (
     <div className={styles.page}>
-      <h1>Hello world 2</h1>
+      <h1 className="primary-text mx-auto m-5">Hello world 2</h1>
     </div>
   );
 }
