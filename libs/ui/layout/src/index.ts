@@ -12,7 +12,7 @@ export {
   PermissionShell,
   type PermissionShellProps,
 } from './components/permission-shell';
-export { PortalShell, type PortalNavItem, type PortalShellProps } from './components/portal-shell';
+export { PortalShell, type PortalNavItem, type PortalShellProps, type PortalShellSidebarUser } from './components/portal-shell';
 export {
   Sidebar,
   SidebarBrand,

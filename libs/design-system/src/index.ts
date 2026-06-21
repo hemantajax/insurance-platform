@@ -66,4 +66,5 @@ export {
 export { Skeleton } from './components/ui/skeleton';
 export { Toaster } from './components/ui/sonner';
 export { ThemeProvider } from './components/theme-provider';
+export { ThemeMenuItems } from './components/theme-menu-items';
 export { ThemeToggle } from './components/theme-toggle';

@@ -2,9 +2,18 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, LogOut } from 'lucide-react';
 
-import { Button, cn } from '@org/design-system';
+import {
+  Button,
+  cn,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  ThemeMenuItems,
+} from '@org/design-system';
 
 import { BrandIcon } from '../icons/nav-icons';
 
@@ -194,6 +203,7 @@ export interface SidebarUserProfileProps {
   avatarFallback?: string;
   collapsed?: boolean;
   className?: string;
+  onSignOut?: () => void;
 }
 
 export function SidebarUserProfile({
@@ -202,35 +212,58 @@ export function SidebarUserProfile({
   avatarFallback,
   collapsed = false,
   className,
+  onSignOut,
 }: SidebarUserProfileProps) {
   const initials =
     avatarFallback ?? name.split(' ').map((part) => part[0]).join('').slice(0, 2);
 
   return (
-    <div
-      className={cn(
-        'flex shrink-0 items-center border-t border-border py-6',
-        collapsed ? 'justify-center px-3' : 'gap-3 px-7',
-        className
-      )}
-      title={collapsed ? `${name} — ${role}` : undefined}
-    >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-foreground">
-        {initials}
-      </div>
-      <div
-        className={cn('sidebar-user-text min-w-0 flex-1', collapsed && 'hidden')}
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            'flex shrink-0 w-full cursor-pointer items-center border-t border-border py-6 text-left outline-none transition-colors hover:bg-sidebar-active focus-visible:ring-2 focus-visible:ring-ring',
+            collapsed ? 'justify-center px-3' : 'gap-3 px-7',
+            className
+          )}
+          title={collapsed ? `${name} — ${role}` : undefined}
+          aria-label={`${name}, ${role}. Open account menu`}
+        >
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-foreground">
+            {initials}
+          </div>
+          <div
+            className={cn('sidebar-user-text min-w-0 flex-1', collapsed && 'hidden')}
+          >
+            <p className="truncate text-sm font-medium text-foreground">{name}</p>
+            <p className="truncate text-xs text-muted-foreground">{role}</p>
+          </div>
+          <ChevronRight
+            className={cn(
+              'sidebar-user-text h-5 w-5 shrink-0 rotate-90 text-muted-foreground',
+              collapsed && 'hidden'
+            )}
+          />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        side="top"
+        align={collapsed ? 'center' : 'start'}
+        className="w-56"
       >
-        <p className="truncate text-sm font-medium text-foreground">{name}</p>
-        <p className="truncate text-xs text-muted-foreground">{role}</p>
-      </div>
-      <ChevronRight
-        className={cn(
-          'sidebar-user-text h-5 w-5 shrink-0 rotate-90 text-muted-foreground',
-          collapsed && 'hidden'
-        )}
-      />
-    </div>
+        <ThemeMenuItems />
+        {onSignOut ? (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={onSignOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign out
+            </DropdownMenuItem>
+          </>
+        ) : null}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 

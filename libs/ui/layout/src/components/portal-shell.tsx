@@ -62,10 +62,18 @@ export interface PortalNavItem {
   active?: boolean;
 }
 
+export interface PortalShellSidebarUser {
+  name: string;
+  role: string;
+  avatarFallback?: string;
+}
+
 export interface PortalShellProps {
   children: React.ReactNode;
   breadcrumbs?: BreadcrumbItem[];
   profile?: React.ReactNode;
+  sidebarUser?: PortalShellSidebarUser;
+  onSignOut?: () => void;
   navigation?: PortalNavItem[];
   showHeader?: boolean;
   showBreadcrumb?: boolean;
@@ -86,6 +94,8 @@ export function PortalShell({
   children,
   breadcrumbs = [{ label: 'Dashboard' }],
   profile,
+  sidebarUser,
+  onSignOut,
   navigation = defaultNavItems,
   showHeader = true,
   showBreadcrumb = true,
@@ -182,9 +192,11 @@ export function PortalShell({
             ))}
             footer={
               <SidebarUserProfile
-                name="Claims Processor"
-                role="Placeholder user"
+                name={sidebarUser?.name ?? 'Claims Processor'}
+                role={sidebarUser?.role ?? 'Placeholder user'}
+                avatarFallback={sidebarUser?.avatarFallback}
                 collapsed={isCollapsed}
+                onSignOut={onSignOut}
               />
             }
           />

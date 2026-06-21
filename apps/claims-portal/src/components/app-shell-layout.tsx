@@ -68,6 +68,16 @@ export function AppShellLayout({ children }: { children: React.ReactNode }) {
       showHeader={!isCrmLayout}
       showBreadcrumb={!isCrmLayout}
       contentClassName={isCrmLayout ? 'px-0 pb-0' : undefined}
+      sidebarUser={
+        user
+          ? {
+              name: user.name,
+              role: user.role.replace('_', ' '),
+              avatarFallback: initials,
+            }
+          : undefined
+      }
+      onSignOut={handleSignOut}
       profile={
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
