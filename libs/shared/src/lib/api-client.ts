@@ -4,6 +4,7 @@ import type {
   ClaimsListResponse,
   Claim,
   Comment,
+  Customer,
   CustomersListParams,
   CustomersListResponse,
   DocumentMetadata,
@@ -42,6 +43,14 @@ export async function fetchCustomers(
     })}`
   );
   return parseResponse<CustomersListResponse>(response);
+}
+
+export async function fetchCustomer(
+  id: string,
+  signal?: AbortSignal
+): Promise<Customer> {
+  const response = await fetch(`/api/customers/${id}`, { signal });
+  return parseResponse<Customer>(response);
 }
 
 export async function fetchClaims(
@@ -83,9 +92,23 @@ export async function deleteClaim(id: string): Promise<void> {
   await parseResponse<{ success: boolean }>(response);
 }
 
-export async function fetchDocument(id: string): Promise<DocumentMetadata> {
-  const response = await fetch(`/api/documents/${id}`);
+export async function fetchDocument(
+  id: string,
+  signal?: AbortSignal
+): Promise<DocumentMetadata> {
+  const response = await fetch(`/api/documents/${id}`, { signal });
   return parseResponse<DocumentMetadata>(response);
+}
+
+export function documentPageUrl(
+  rangeUrlTemplate: string,
+  page: number
+): string {
+  return rangeUrlTemplate.replace('{page}', String(page));
+}
+
+export function documentDownloadUrl(documentId: string): string {
+  return `/api/documents/${documentId}/download`;
 }
 
 export async function fetchComments(

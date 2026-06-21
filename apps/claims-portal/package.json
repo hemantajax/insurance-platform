@@ -5,6 +5,7 @@
   "dependencies": {
     "@org/data-grid": "*",
     "@org/design-system": "*",
+    "@org/documents": "*",
     "@org/layout": "*",
     "@org/shared": "*",
     "@tanstack/react-query": "^5.90.2",

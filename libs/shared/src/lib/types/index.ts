@@ -67,6 +67,7 @@ export interface Customer {
   country: string;
   status: CustomerStatus;
   createdAt: string;
+  documentId: string;
 }
 
 export interface CustomersListParams {

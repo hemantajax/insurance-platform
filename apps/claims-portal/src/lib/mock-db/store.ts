@@ -263,6 +263,7 @@ function generateCustomer(index: number): Customer {
     country: pick(random, CUSTOMER_COUNTRIES),
     status,
     createdAt,
+    documentId: `doc-${index + 1}`,
   };
 }
 
@@ -274,6 +275,18 @@ export function getCustomerByIndex(index: number): Customer {
   const customer = generateCustomer(index);
   customerCache.set(index, customer);
   return customer;
+}
+
+export function getCustomerById(id: string): Customer | undefined {
+  const match = /^customer-(\d+)$/.exec(id);
+  if (!match) {
+    return undefined;
+  }
+  const index = Number(match[1]) - 1;
+  if (index < 0 || index >= TOTAL_CUSTOMERS) {
+    return undefined;
+  }
+  return getCustomerByIndex(index);
 }
 
 export interface CustomersQuery {
@@ -387,12 +400,44 @@ export function getDocumentMetadata(documentId: string): DocumentMetadata | unde
   return {
     id: documentId,
     claimId: `claim-${index}`,
-    fileName: `claim-${String(index).padStart(6, '0')}.pdf`,
+    fileName: `document-${String(index).padStart(6, '0')}.pdf`,
     pageCount,
     sizeBytes,
     modifiedAt: new Date(Date.now() - random() * 86_400_000 * 30).toISOString(),
     rangeUrlTemplate: `/api/documents/${documentId}/pages/{page}`,
   };
+}
+
+/**
+ * Generates a lightweight SVG "page" on demand so the viewer can stream real
+ * per-page content without shipping a multi-hundred-MB binary. Each page is a
+ * few KB, proving the page-range streaming + virtualization strategy.
+ */
+export function renderPlaceholderPage(
+  documentId: string,
+  page: number
+): string | undefined {
+  const metadata = getDocumentMetadata(documentId);
+  if (!metadata || page < 1 || page > metadata.pageCount) {
+    return undefined;
+  }
+  const random = mulberry32(page * 7 + documentId.length);
+  const lineCount = 14 + Math.floor(random() * 10);
+  const lines: string[] = [];
+  for (let i = 0; i < lineCount; i += 1) {
+    const width = 120 + Math.floor(random() * 520);
+    const y = 150 + i * 42;
+    lines.push(
+      `<rect x="80" y="${y}" width="${width}" height="14" rx="3" fill="#e2e8f0" />`
+    );
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1132" viewBox="0 0 800 1132" role="img" aria-label="Page ${page}">
+  <rect width="800" height="1132" fill="#ffffff" stroke="#e5e7eb" stroke-width="2" />
+  <text x="80" y="96" font-family="ui-sans-serif, system-ui, sans-serif" font-size="34" font-weight="700" fill="#0f172a">${metadata.fileName}</text>
+  <text x="80" y="128" font-family="ui-sans-serif, system-ui, sans-serif" font-size="18" fill="#64748b">Page ${page} of ${metadata.pageCount}</text>
+  ${lines.join('\n  ')}
+  <text x="720" y="1100" text-anchor="end" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16" fill="#94a3b8">${page}</text>
+</svg>`;
 }
 
 const comments = new Map<string, Comment[]>();

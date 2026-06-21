@@ -2,7 +2,8 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import * as React from 'react';
-import { Monitor, Users } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
+import { ChevronRight, Monitor, Users } from 'lucide-react';
 
 import {
   DataTableCard,
@@ -21,11 +22,18 @@ import {
   TableHeader,
   TableRow,
 } from '@org/design-system';
-import type { CustomerStatus, CustomersListParams } from '@org/shared';
+import { documentQueryKey } from '@org/documents';
+import {
+  fetchCustomer,
+  fetchDocument,
+  type Customer,
+  type CustomerStatus,
+  type CustomersListParams,
+} from '@org/shared';
 
 import { CrmPageLayout } from '../../../components/crm-page-layout';
 import { useAuth } from '../../../lib/auth';
-import { useCustomersQuery } from '../../../lib/customers';
+import { customerQueryKey, useCustomersQuery } from '../../../lib/customers';
 
 const PAGE_SIZE = 8;
 
@@ -73,10 +81,35 @@ function formatFooter(page: number, pageSize: number, total: number): string {
 
 export default function CustomersPageContent() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const params = React.useMemo(() => parseParams(searchParams), [searchParams]);
   const { user } = useAuth();
   const firstName = user?.name.split(' ')[0] ?? 'Evano';
+
+  const openCustomer = React.useCallback(
+    (id: string) => router.push(`/customers/${id}`),
+    [router]
+  );
+
+  // Warm the route bundle + the customer/document metadata caches on hover so
+  // the workspace opens with a visibly shorter loading phase.
+  const prefetchCustomer = React.useCallback(
+    (customer: Customer) => {
+      router.prefetch(`/customers/${customer.id}`);
+      void queryClient.prefetchQuery({
+        queryKey: customerQueryKey(customer.id),
+        queryFn: ({ signal }) => fetchCustomer(customer.id, signal),
+        staleTime: 60_000,
+      });
+      void queryClient.prefetchQuery({
+        queryKey: documentQueryKey(customer.documentId),
+        queryFn: ({ signal }) => fetchDocument(customer.documentId, signal),
+        staleTime: 60_000,
+      });
+    },
+    [queryClient, router]
+  );
 
   const [searchInput, setSearchInput] = React.useState(params.q ?? '');
   const debouncedSearch = useDebouncedValue(searchInput, 300);
@@ -178,13 +211,16 @@ export default function CustomersPageContent() {
               <TableHead>Email</TableHead>
               <TableHead>Country</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead className="w-12">
+                <span className="sr-only">Open documents</span>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               Array.from({ length: PAGE_SIZE }).map((_, index) => (
                 <TableRow key={`skeleton-${index}`}>
-                  {Array.from({ length: 6 }).map((__, cellIndex) => (
+                  {Array.from({ length: 7 }).map((__, cellIndex) => (
                     <TableCell key={cellIndex}>
                       <Skeleton className="h-4 w-full max-w-[140px]" />
                     </TableCell>
@@ -193,19 +229,34 @@ export default function CustomersPageContent() {
               ))
             ) : isError ? (
               <TableRow>
-                <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
                   Failed to load customers. Try again.
                 </TableCell>
               </TableRow>
             ) : (data?.data.length ?? 0) === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
                   No customers match your search.
                 </TableCell>
               </TableRow>
             ) : (
               data?.data.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow
+                  key={row.id}
+                  tabIndex={0}
+                  role="link"
+                  aria-label={`Open documents for ${row.name}`}
+                  className="cursor-pointer transition-colors hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:outline-none"
+                  onClick={() => openCustomer(row.id)}
+                  onMouseEnter={() => prefetchCustomer(row)}
+                  onFocus={() => prefetchCustomer(row)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      openCustomer(row.id);
+                    }
+                  }}
+                >
                   <TableCell className="font-medium">{row.name}</TableCell>
                   <TableCell>{row.company}</TableCell>
                   <TableCell>{row.phone}</TableCell>
@@ -213,6 +264,9 @@ export default function CustomersPageContent() {
                   <TableCell>{row.country}</TableCell>
                   <TableCell>
                     <StatusBadge status={row.status} />
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    <ChevronRight className="h-4 w-4" aria-hidden="true" />
                   </TableCell>
                 </TableRow>
               ))

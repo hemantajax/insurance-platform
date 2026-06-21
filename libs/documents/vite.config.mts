@@ -38,7 +38,15 @@ export default defineConfig(() => ({
     },
     rolldownOptions: {
       // External packages that should not be bundled into your library.
-      external: ['react', 'react-dom', 'react/jsx-runtime'],
+      // @tanstack/react-query MUST stay external so the lib shares the app's
+      // single QueryClient context instance (bundling it duplicates the
+      // module and breaks `useQueryClient`).
+      external: [
+        'react',
+        'react-dom',
+        'react/jsx-runtime',
+        '@tanstack/react-query',
+      ],
     },
   },
 }));

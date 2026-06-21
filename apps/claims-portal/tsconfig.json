@@ -56,6 +56,9 @@
       "path": "../../libs/ui/layout"
     },
     {
+      "path": "../../libs/documents"
+    },
+    {
       "path": "../../libs/design-system"
     },
     {
