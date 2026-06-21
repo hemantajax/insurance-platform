@@ -1,107 +1,243 @@
-# New Nx Repository
+# Coding With AI - Course Resources
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+Resources, prompts, lesson notes, feature specs, and more for the **Coding With AI** course — where we learn AI-assisted development by building **DevStash**, a centralized developer knowledge/resource hub.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+> **Note:** This repo does NOT contain the DevStash source code. That lives in a [separate repository](https://github.com/bradtraversy/devstash). This is the companion resource for students taking the course.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
-<!-- BEGIN: nx-cloud -->
-## Try the full Nx platform
-🚀 If you haven't connected to Nx Cloud yet, [complete your setup here](https://cloud.nx.app/setup/connect-workspace/guide). Get faster builds with remote caching, distributed task execution, and self-healing CI. [See how your workspace can benefit](#nx-cloud).
-<!-- END: nx-cloud -->
-## Generate a library
+| | Link |
+| --- | --- |
+| **Course** | Coming Soon |
+| **DevStash Repo** | [github.com/bradtraversy/devstash](https://github.com/bradtraversy/devstash) |
 
-```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
+---
+
+## Table of Contents
+
+- [📚 What You'll Learn](#-what-youll-learn)
+- [🚀 How to Use This Repo](#-how-to-use-this-repo)
+- [🔄 Development Workflow](#-development-workflow)
+- [🎓 Course Curriculum](#-course-curriculum)
+- [📁 Folder Structure](#-folder-structure)
+- [🛠️ Course Project Tech Stack](#️-course-project-tech-stack)
+- [📄 License](#-license)
+
+---
+
+## 📚 What You'll Learn
+
+- 🤖 How to use AI tools in a real development workflow
+- ⚡ Vibe coding for rapid prototyping vs. production-grade development
+- 📋 Project planning, context files, and AI interaction strategies
+- 🏗️ Building a SaaS/full-stack app from scratch with AI assistance
+- 🔧 Custom skills, subagents, and MCP servers
+- 🔐 Authentication, Stripe payments, file storage, and AI feature integration
+
+## 🚀 How to Use This Repo
+
+1. **Follow along with the course** — Open the lesson notes in `course-lessons/` as you watch each video
+2. **Copy prompts** — Use the prompts in `prompts/` as starting points when building alongside the course
+3. **Reference specs** — Check `context/features/` for detailed feature specifications when implementing
+4. **Set up your own skills** — Copy the `skills/` folder into your project's `.claude/skills/` directory
+5. **Study the docs** — Read through `docs/` for architecture decisions and integration plans
+
+---
+
+## 🔄 Development Workflow
+
+The workflow we follow throughout the course for every feature:
+
+1. **Document** — Write the feature spec in `context/current-feature.md`
+2. **Branch** — Create a new branch (`feature/[name]` or `fix/[name]`)
+3. **Implement** — Build the feature with AI assistance
+4. **Create Tests** - Create unit tests for server actions
+5. **Run Tests** — Verify in the browser, run `npm run build` and `npm run test`
+6. **Iterate** — Adjust as needed
+7. **Commit** — Only after the build passes
+8. **Merge** — Merge to main
+9. **Delete Branch** — Clean up after merge
+10. **Review** — Review AI-generated code
+11. **Complete** — Mark as done in `current-feature.md`
+
+---
+
+## 🎓 Course Curriculum
+
+15 sections with 100+ lessons covering the full development lifecycle.
+
+### Section 1 — Welcome to the Course (7 lessons)
+
+Introduction to AI-assisted development, the current landscape, different levels of AI assistance, and common AI tools.
+
+### Section 2 — Vibe Coding for Prototyping (7 lessons)
+
+Learn rapid prototyping with AI — writing good prompts, iterating on output, and understanding the gap between prototypes and production code.
+
+### Section 3 — Claude Code Setup & Context Tokens (7 lessons)
+
+Claude Code overview, installation, plan mode, slash commands, context management, and the VS Code extension.
+
+### Section 4 — Project Planning & Context Files (5 lessons)
+
+Planning a project with AI, creating a project spec, setting up `CLAUDE.md`, coding standards, and the AI workflow.
+
+### Section 5 — Start Building DevStash (7 lessons)
+
+Initialize the project, create a quick prototype, set up mock data, and build the dashboard UI in three phases.
+
+### Section 6 — Database Integration & Initial Deploy (9 lessons)
+
+Set up Neon PostgreSQL, configure Prisma 7, run migrations, seed data, populate the dashboard, and deploy to Vercel.
+
+### Section 7 — Skills & Subagents (8 lessons)
+
+Create custom Claude Code skills (feature, cleanup, research, list-components) and subagents (code scanner, UI reviewer).
+
+### Section 8 — Working with MCP Servers (4 lessons)
+
+What is MCP, setting up Neon MCP, Context7, and Playwright MCP for automated testing.
+
+### Section 9 — Implement Authentication (12 lessons)
+
+NextAuth v5 in three phases, GitHub OAuth, email verification with Resend, forgot password, user profile, rate limiting with Upstash.
+
+### Section 10 — Item CRUD, Research & Unit Testing (9 lessons)
+
+Custom research skill, item listings, unit testing, item details drawer, edit/delete/create operations, and Playwright E2E tests.
+
+### Section 11 — Item Display & R2 Storage (8 lessons)
+
+Code editor, markdown editor, Cloudflare R2 setup, file/image uploads, display components, and code scanning.
+
+### Section 12 — Collections, Search, Favorites & More (11 lessons)
+
+Collection CRUD, adding items to collections, global search with command palette, pagination, settings, favorites, and pinned items.
+
+### Section 13 — Home & Stripe Integration (13 lessons)
+
+Homepage design and implementation, UI reviewer subagent, Stripe sandbox setup, integration plan, implementation in two phases, webhooks, and production testing.
+
+### Section 14 — Implement AI Features (5 lessons)
+
+OpenAI integration, auto-tagging, AI summaries, code explanation, and prompt optimization.
+
+### Section 15 — Code Audit & Final Deployment (5 lessons)
+
+UI review, refactoring reusable utilities, domain setup, Resend domain validation, and course wrap-up.
+
+---
+
+## 📁 Folder Structure
+
+```
+coding-with-ai-course-resources/
+├── course-lessons/          # Lesson notes for all 15 sections
+├── prompts/                 # Prompts used in each section
+├── context/                 # Project context files (specs, features, research)
+├── docs/                    # Detailed project documentation
+├── skills/                  # Custom Claude Code skills
+├── custom-subagents/        # AI subagent definitions
+├── legacy-custom-commands/  # Older custom command format (pre-skills)
+├── diagrams-notes/          # Visual diagrams used in lessons
+├── CLAUDE.md                # Claude Code project instructions
+└── README.md
 ```
 
-## Run tasks
+### `/course-lessons`
 
-To build the library use:
+Lesson notes organized by section. Each file covers a single lesson with explanations, steps, and key concepts.
 
-```sh
-npx nx build pkg1
-```
+### `/prompts`
 
-To run any task with Nx use:
+The actual prompts used throughout the course, organized by section. Use these as reference when following along or to see examples of effective AI prompting.
 
-```sh
-npx nx <target> <project-name>
-```
+| File                           | Section                          |
+| ------------------------------ | -------------------------------- |
+| `prototype-example-prompts.md` | Example prototyping prompts      |
+| `section-02-prompts.md`        | Vibe Coding for Prototyping      |
+| `section-03-prompts.md`        | Claude Code Setup                |
+| `section-04-prompts.md`        | Project Planning & Context Files |
+| `section-05-prompts.md`        | Start Building DevStash          |
+| `section-06-prompts.md`        | Database & Deployment            |
+| `section-07-prompts.md`        | Skills & Subagents               |
+| `section-08-prompts.md`        | MCP Servers                      |
+| `section-09-prompts.md`        | Authentication                   |
+| `section-10-prompts.md`        | Item CRUD & Testing              |
+| `section-11-prompts.md`        | Item Display & R2 Storage        |
+| `section-12-prompts.md`        | Collections, Search & More       |
+| `section-13-prompts.md`        | Home & Stripe                    |
+| `section-14-prompts.md`        | AI Features                      |
+| `section-15-prompts.md`        | Code Audit & Deployment          |
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+### `/context`
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+The project context files used by Claude Code during development. These are the files that live in the DevStash repo and guide AI behavior.
 
-## Versioning and releasing
+- **Root files** — `project-overview.md`, `coding-standards.md`, `ai-interaction.md`, `current-feature.md`
+- **`/features`** — Individual feature specs (30+ files covering auth, dashboard, items, collections, AI, etc.)
+- **`/fixes`** — Fix specifications (e.g., GitHub OAuth redirect fix)
+- **`/research`** — Technical research docs (AI integration, item CRUD patterns, Stripe)
+- **`/screenshots`** — UI mockups and design references
 
-To version and release the library use
+### `/docs`
 
-```
-npx nx release
-```
+Detailed project documentation and architecture plans:
 
-Pass `--dry-run` to see what would happen without actually releasing the library.
+| File                         | Description                                    |
+| ---------------------------- | ---------------------------------------------- |
+| `project-spec.md`            | Master project specification                   |
+| `item-types.md`              | All 7 system item types with field definitions |
+| `item-crud-architecture.md`  | CRUD operation architecture                    |
+| `stripe-integration-plan.md` | Stripe payment integration plan                |
+| `ai-integration-plan.md`     | AI features integration plan                   |
 
-[Learn more about Nx release &raquo;](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### `/skills`
 
-## Keep TypeScript project references up to date
+Custom Claude Code skills created during the course:
 
-Nx automatically updates TypeScript [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in `tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or `require` statements). This sync is automatically done when running tasks such as `build` or `typecheck`, which require updated references to function correctly.
+| Skill              | Description                                                                                 |
+| ------------------ | ------------------------------------------------------------------------------------------- |
+| `feature/`         | Feature implementation workflow with actions (load, start, review, explain, complete, test) |
+| `cleanup/`         | Code cleanup and file removal                                                               |
+| `research/`        | Technical research documentation                                                            |
+| `list-components/` | List and catalog all components in a codebase                                               |
 
-To manually trigger the process to sync the project graph dependencies information to the TypeScript project references, run the following command:
+### `/custom-subagents`
 
-```sh
-npx nx sync
-```
+Specialized AI subagent definitions:
 
-You can enforce that the TypeScript project references are always in the correct state when running in CI by adding a step to your CI job configuration that runs the following command:
+| Subagent              | Description                                              |
+| --------------------- | -------------------------------------------------------- |
+| `code-scanner.md`     | Scans for code quality, performance, and security issues |
+| `ui-reviewer.md`      | Reviews UI/UX against design specifications              |
+| `refactor-scanner.md` | Identifies refactoring opportunities                     |
 
-```sh
-npx nx sync:check
-```
+### `/diagrams-notes`
 
-[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
+Visual diagrams used in lesson slides — levels of AI assistance, prototyping, context & tokens, migrations workflow, MCP architecture, and more.
 
-## Nx Cloud
+### `/legacy-custom-commands`
 
-Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
+The older custom command format (before Claude Code skills were introduced). Kept for reference.
 
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+---
 
-### Set up CI (non-Github Actions CI)
+## 🛠️ Course Project Tech Stack
 
-**Note:** This is only required if your CI provider is not GitHub Actions.
+| Category     | Technology                   |
+| ------------ | ---------------------------- |
+| Framework    | Next.js (React 19)           |
+| Language     | TypeScript (strict mode)     |
+| Database     | Neon PostgreSQL + Prisma ORM |
+| Auth         | NextAuth v5 (Email + GitHub) |
+| Styling      | Tailwind CSS v4 + shadcn/ui  |
+| File Storage | Cloudflare R2                |
+| AI           | OpenAI GPT-5-Nano            |
+| Payments     | Stripe                       |
+| Deployment   | Vercel                       |
+| Main AI Tool | Claude Code (Opus 4.5/4.6)   |
 
-Use the following command to configure a CI workflow for your workspace:
+---
 
-```sh
-npx nx g ci-workflow
-```
+## 📄 License
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/nx-api/js?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+This project is licensed under the [MIT License](LICENSE).

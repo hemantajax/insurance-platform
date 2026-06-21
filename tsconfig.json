@@ -8,6 +8,27 @@
     },
     {
       "path": "./apps/claims-portal"
+    },
+    {
+      "path": "./libs/design-system"
+    },
+    {
+      "path": "./libs/shared"
+    },
+    {
+      "path": "./libs/claims"
+    },
+    {
+      "path": "./libs/documents"
+    },
+    {
+      "path": "./libs/auth"
+    },
+    {
+      "path": "./libs/ui/data-grid"
+    },
+    {
+      "path": "./libs/ui/layout"
     }
   ]
 }

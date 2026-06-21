@@ -1,0 +1,655 @@
+This is the plan I would actually follow to complete the case study in **1 day** while still demonstrating architect-level thinking.
+
+its just quick view , improve change tech stack with react eco system if needed , 
+
+follow nx styles folder structure apps/ libs/ etc 
+
+# Insurance Platform - Case Study Implementation Plan
+
+## Project Overview
+
+### Workspace
+
+```txt
+insurance-platform
+```
+
+### Application
+
+```txt
+claims-portal
+```
+
+### Tech Stack
+
+* Nx Monorepo
+* Next.js 15
+* React 19
+* TypeScript
+* Tailwind CSS v4
+* shadcn/ui
+* TanStack Query
+* TanStack Table
+* TanStack Virtual
+* Zustand
+* React PDF / PDF.js
+* Mock Service Worker or Next Route Handlers
+* Workbox Service Worker
+* Vercel Deployment
+
+---
+
+# Phase 0 - Foundation Setup
+
+## Goal
+
+Establish scalable architecture before implementing features.
+
+## Deliverables
+
+### Workspace Structure
+
+```txt
+apps/
+└── claims-portal
+
+libs/
+├── design-system
+├── shared
+├── auth
+├── claims
+├── documents
+├── workers
+```
+
+### Setup
+
+* Next.js Application
+* Tailwind
+* shadcn/ui
+* ESLint
+* Prettier
+* Husky
+* Commitlint
+
+### Design Tokens
+
+```txt
+libs/design-system/src/tokens
+```
+
+* Colors
+* Typography
+* Spacing
+* Shadows
+* Radius
+
+### Theme Support
+
+* Light Theme
+* Dark Theme
+
+---
+
+# Phase 1 - Application Shell
+
+## Goal
+
+Create foundation for all future screens.
+
+## Features
+
+### Layout
+
+* Header
+* Sidebar
+* Breadcrumb
+* User Profile
+
+### Global Components
+
+* Page Loader
+* Error Boundary
+* Empty State
+* Permission Wrapper
+
+### State
+
+Zustand Store
+
+```txt
+theme
+sidebar
+selected claim
+workspace state
+```
+
+### Deliverables
+
+* Responsive Layout
+* Theme Switching
+* Error Handling
+
+---
+
+# Phase 2 - Authentication & RBAC
+
+## Goal
+
+Implement role-based experience.
+
+## Roles
+
+### Claim Processor
+
+```txt
+View
+Edit
+Comment
+```
+
+### Supervisor
+
+```txt
+View
+Edit
+Delete
+Assign
+Approve
+```
+
+### Auditor
+
+```txt
+Read Only
+```
+
+## Features
+
+### Login
+
+Mock Login
+
+### JWT Parsing
+
+Extract permissions
+
+### Permission Hook
+
+```tsx
+usePermission()
+```
+
+### Permission Components
+
+```tsx
+<Can permission="claim.edit">
+```
+
+### Deliverables
+
+* Login
+* RBAC
+* Protected Routes
+* Hidden Actions
+
+---
+
+# Phase 3 - Claims Dashboard
+
+## Goal
+
+Handle 20,000+ records efficiently.
+
+## Components
+
+### Claims Grid
+
+TanStack Table
+
+### Virtualized Rows
+
+TanStack Virtual
+
+### Filters
+
+* Claim Number
+* Status
+* Assignee
+
+### Sorting
+
+Server Side
+
+### Pagination
+
+Server Side
+
+### Actions
+
+* Edit
+* Delete
+* Assign
+
+## Features
+
+### Search
+
+Debounced Search
+
+### Bulk Selection
+
+Checkbox Selection
+
+### Column Visibility
+
+Show Hide Columns
+
+### Deliverables
+
+* 50,000 Mock Records
+* Virtualization
+* Sorting
+* Filtering
+* Pagination
+
+---
+
+# Phase 4 - Mock Backend Layer
+
+## Goal
+
+Simulate enterprise APIs.
+
+## APIs
+
+### Claims
+
+```http
+GET /api/claims
+GET /api/claims/:id
+PUT /api/claims/:id
+DELETE /api/claims/:id
+```
+
+### Documents
+
+```http
+GET /api/documents/:id
+```
+
+### Comments
+
+```http
+POST /api/comments
+GET /api/comments
+```
+
+### Jobs
+
+```http
+POST /api/jobs/split
+POST /api/jobs/merge
+
+GET /api/jobs/:id
+```
+
+## Deliverables
+
+* Fake Database
+* Pagination APIs
+* Delayed Responses
+* Error Simulation
+
+---
+
+# Phase 5 - Document Workspace
+
+## Goal
+
+Open claim and view documents.
+
+## Layout
+
+```txt
+--------------------------------
+Toolbar
+--------------------------------
+Document Viewer
+--------------------------------
+Comments Panel
+--------------------------------
+```
+
+## Features
+
+### Viewer
+
+* PDF Viewer
+* Page Navigation
+* Zoom
+* Rotate
+
+### Metadata
+
+* Page Count
+* File Size
+* Last Modified
+
+### Deliverables
+
+* PDF Rendering
+* Page Navigation
+* Zoom Controls
+
+---
+
+# Phase 6 - Large Document Strategy
+
+## Goal
+
+Show architecture for 1GB documents.
+
+## Features
+
+### Page Virtualization
+
+Only visible pages rendered.
+
+### Lazy Page Loading
+
+Load on demand.
+
+### Skeleton Pages
+
+Display placeholders.
+
+### Memory Cleanup
+
+Unload invisible pages.
+
+## Deliverables
+
+* Virtualized PDF Pages
+* Smooth Scrolling
+* Low Memory Usage
+
+---
+
+# Phase 7 - Comments & Annotations
+
+## Goal
+
+Support document collaboration.
+
+## Features
+
+### Page Comments
+
+* Add Comment
+* Edit Comment
+* Delete Comment
+
+### Annotation Layer
+
+Mock Implementation
+
+* Highlight
+* Rectangle
+* Sticky Note
+
+### Deliverables
+
+* Comment Sidebar
+* Annotation Overlay
+
+---
+
+# Phase 8 - Split / Merge Workflow
+
+## Goal
+
+Simulate long-running operations.
+
+## Split
+
+Select Pages
+
+```txt
+1-10
+11-20
+```
+
+Generate Job
+
+## Merge
+
+Select Multiple Documents
+
+Generate Job
+
+## Job Tracking
+
+Progress Bar
+
+```txt
+0%
+25%
+50%
+75%
+100%
+```
+
+### Deliverables
+
+* Split Dialog
+* Merge Dialog
+* Progress Tracking
+
+---
+
+# Phase 9 - Performance Optimization
+
+## Goal
+
+Demonstrate frontend performance knowledge.
+
+## Lazy Loading
+
+### Route Level
+
+* Dashboard
+* Workspace
+
+### Component Level
+
+* Viewer
+* Comments
+
+### Dialog Level
+
+* Edit
+* Assign
+* Delete
+* Split
+* Merge
+
+## React Optimizations
+
+* Memoization
+* Dynamic Imports
+* Suspense
+
+## Deliverables
+
+* Lazy Chunks
+* Loading States
+
+---
+
+# Phase 10 - PWA & Offline
+
+## Goal
+
+Enterprise readiness.
+
+## Service Worker
+
+### Cache Assets
+
+* JS
+* CSS
+* Fonts
+
+### Cache APIs
+
+* Claims List
+
+### Offline Screen
+
+Display fallback page.
+
+## Deliverables
+
+* Installable App
+* Offline Support
+
+---
+
+# Phase 11 - Responsive Experience
+
+## Goal
+
+Support desktop and tablet.
+
+## Breakpoints
+
+### Desktop
+
+Full Workspace
+
+### Tablet
+
+Collapsible Panels
+
+### Mobile
+
+Dashboard Only
+
+Document Viewer Read Only
+
+## Deliverables
+
+* Responsive Layout
+* Mobile Navigation
+
+---
+
+# Phase 12 - Architecture Documentation
+
+## Goal
+
+Explain decisions and trade-offs.
+
+## Architecture Diagram
+
+### Layers
+
+```txt
+Presentation
+Business
+Data
+Infrastructure
+```
+
+## Performance Discussion
+
+### Grid
+
+Virtualization vs Pagination
+
+### Documents
+
+Streaming vs Full Download
+
+### RBAC
+
+Frontend vs Backend
+
+### State
+
+Zustand vs Redux
+
+### Data
+
+TanStack Query vs Custom Fetch
+
+## Deliverables
+
+* Architecture Diagram
+* Trade-off Matrix
+* README
+
+````
+
+# Total Feature Count
+
+## Foundation
+
+- Theme
+- Design Tokens
+- Layout
+- Error Boundary
+
+= 4 Features
+
+## Authentication
+
+- Login
+- RBAC
+- Permissions
+
+= 3 Features
+
+## Dashboard
+
+- Virtual Grid
+- Search
+- Filter
+- Sort
+- Pagination
+- Row Actions
+
+= 6 Features
+
+## Document Workspace
+
+- Viewer
+- Navigation
+- Zoom
+- Comments
+- Annotations
+
+= 5 Features
+
+## Operations
+
+- Split
+- Merge
+- Job Tracking
+
+= 3 Features
+
+## Performance
+
+- Lazy Loading
+- Virtualization
+- Service Worker
+
+= 3 Features
+
+## Total
+
+```txt
+24 Core Features
+````
