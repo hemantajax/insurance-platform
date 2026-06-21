@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "installCommand": "npm install",
+  "buildCommand": "npx nx build @org/claims-portal",
+  "outputDirectory": "apps/claims-portal/.next",
+  "ignoreCommand": "npx nx-ignore @org/claims-portal"
+}
