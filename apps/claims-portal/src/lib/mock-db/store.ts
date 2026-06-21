@@ -330,8 +330,33 @@ export function getCustomerStats(): {
 }
 
 export function queryCustomers(query: CustomersQuery): { data: Customer[]; total: number } {
-  const matches: Customer[] = [];
+  const sort = query.sort ?? 'newest';
+  const hasFilter = Boolean(query.status || query.q);
+  const start = Math.max(0, (query.page - 1) * query.pageSize);
 
+  // Fast path: the default browsing experience (no filter/search, sorted by
+  // creation date). `createdAt` is monotonic with the record index, so we can
+  // resolve the requested page directly without materialising the full dataset.
+  // This keeps the request O(pageSize) instead of O(256k) and avoids serverless
+  // timeouts that made the endpoint look unresponsive.
+  if (!hasFilter && (sort === 'newest' || sort === 'oldest')) {
+    const total = TOTAL_CUSTOMERS;
+    if (start >= total) {
+      return { data: [], total };
+    }
+    const end = Math.min(start + query.pageSize, total);
+    const data: Customer[] = [];
+    for (let offset = start; offset < end; offset += 1) {
+      const index = sort === 'newest' ? total - 1 - offset : offset;
+      data.push(getCustomerByIndex(index));
+    }
+    return { data, total };
+  }
+
+  // Slow path: filtering, search, or name/company sort require a full scan.
+  // Records are generated in index order (oldest first), so date sorting needs
+  // only a cheap reverse rather than an O(n log n) comparator pass.
+  const matches: Customer[] = [];
   for (let index = 0; index < TOTAL_CUSTOMERS; index += 1) {
     const customer = getCustomerByIndex(index);
     if (matchesCustomerFilters(customer, query)) {
@@ -339,10 +364,12 @@ export function queryCustomers(query: CustomersQuery): { data: Customer[]; total
     }
   }
 
-  const sort = query.sort ?? 'newest';
-  matches.sort((a, b) => compareCustomers(a, b, sort));
+  if (sort === 'newest') {
+    matches.reverse();
+  } else if (sort === 'name' || sort === 'company') {
+    matches.sort((a, b) => compareCustomers(a, b, sort));
+  }
 
-  const start = (query.page - 1) * query.pageSize;
   const data = matches.slice(start, start + query.pageSize);
   return { data, total: matches.length };
 }
