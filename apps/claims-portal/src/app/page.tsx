@@ -1,14 +1,5 @@
-import styles from './page.module.scss';
+import { FoundationDemo } from './foundation-demo';
 
 export default function Index() {
-  /*
-   * Replace the elements below with your own.
-   *
-   * Note: The corresponding styles are in the ./index.scss file.
-   */
-  return (
-    <div className={styles.page}>
-      <h1 className="primary-text mx-auto m-5">Hello world 2</h1>
-    </div>
-  );
+  return <FoundationDemo />;
 }

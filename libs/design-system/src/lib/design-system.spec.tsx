@@ -1,10 +1,10 @@
 import { render } from '@testing-library/react';
 
-import OrgDesignSystem from './design-system';
+import { Button } from '../index';
 
-describe('OrgDesignSystem', () => {
-  it('should render successfully', () => {
-    const { baseElement } = render(<OrgDesignSystem />);
+describe('DesignSystem', () => {
+  it('should render Button', () => {
+    const { baseElement } = render(<Button>Test</Button>);
     expect(baseElement).toBeTruthy();
   });
 });
