@@ -21,7 +21,16 @@
     "affected": "nx affected -t lint test build",
     "affected:build": "nx affected -t build",
     "affected:test": "nx affected -t test",
-    "affected:lint": "nx affected -t lint"
+    "affected:lint": "nx affected -t lint",
+    "deploy:vercel": "npx vercel deploy --prod",
+    "deploy:vercel:preview": "npx vercel deploy",
+    "vercel:link": "npx vercel link",
+    "vercel:pull": "npx vercel pull --yes",
+    "vercel:pull:prod": "npx vercel pull --yes --environment=production",
+    "vercel:build": "npx vercel build",
+    "vercel:build:prod": "npx vercel build --prod",
+    "vercel:deploy:prebuilt": "npx vercel deploy --prebuilt",
+    "vercel:deploy:prebuilt:prod": "npx vercel deploy --prebuilt --prod"
   },
   "private": true,
   "devDependencies": {
@@ -73,6 +82,7 @@
     "tslib": "^2.3.0",
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.40.0",
+    "vercel": "^44.0.0",
     "vite": "^8.0.0",
     "vite-plugin-dts": "~4.5.0"
   },

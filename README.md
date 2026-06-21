@@ -95,13 +95,38 @@ These deploy automatically with the app:
 
 The frontend uses relative `/api/...` URLs, so no `NEXT_PUBLIC_API_URL` is needed when UI and API share the same Vercel domain.
 
-### CLI deploy (optional)
+### CLI deploy
 
 ```bash
-npx vercel login
-npx vercel link          # select team + link to existing project
-npx vercel --prod        # production deploy
+npm run vercel:link              # one-time: link local repo to Vercel project
+npm run deploy:vercel:preview    # preview deployment
+npm run deploy:vercel            # production deployment
 ```
+
+Prebuilt pipeline (matches GitHub Action):
+
+```bash
+npm run vercel:pull:prod
+npm run vercel:build:prod
+npm run vercel:deploy:prebuilt:prod
+```
+
+### GitHub Actions
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `.github/workflows/ci.yml` | Push / PR to `main` or `feature/**` | `nx affected` lint, test, build |
+| `.github/workflows/vercel-deploy.yml` | Push / PR to `main` | Prebuilt deploy to Vercel |
+
+Add these repository secrets in GitHub (**Settings → Secrets and variables → Actions**):
+
+| Secret | Where to find it |
+|--------|------------------|
+| `VERCEL_TOKEN` | [Vercel Account Tokens](https://vercel.com/account/tokens) |
+| `VERCEL_ORG_ID` | Project → Settings → General → Team / Personal ID |
+| `VERCEL_PROJECT_ID` | Project → Settings → General → Project ID |
+
+If Vercel Git integration is also enabled, disable its auto-deploy for `main` to avoid duplicate production deploys, or remove `vercel-deploy.yml` and rely on Vercel's native Git hooks.
 
 ### Notes
 
